@@ -155,14 +155,24 @@ function setStream(){
   })
  });
 }
+<script>
+async function upload(){
+ let file=document.getElementById('file').files[0];
+ let form=new FormData();
+ form.append("file",file);
+ await fetch('/upload',{method:'POST',body:form});
+ loadSongs();
+}
 
-loadSongs();
-loadPlaylist();
-</script>
-</script>
+async function loadSongs(){
+ let res=await fetch('/songs');
+ let data=await res.json();
 
-</body>
-</html>
+ let list=document.getElementById("songs");
+ list.innerHTML="";
+
+ data.forEach(song=>{
+  let li=document.createElement("li");
   li.innerText=song;
 
   let btn=document.createElement("button");
@@ -174,9 +184,24 @@ loadPlaylist();
       headers:{'Content-Type':'application/json'},
       body:JSON.stringify({song})
     });
+    loadPlaylist();
   };
 
   li.appendChild(btn);
+  list.appendChild(li);
+ });
+}
+
+async function loadPlaylist(){
+ let res=await fetch('/playlist');
+ let data=await res.json();
+
+ let list=document.getElementById("playlist");
+ list.innerHTML="";
+
+ data.forEach(song=>{
+  let li=document.createElement("li");
+  li.innerText=song;
   list.appendChild(li);
  });
 }
@@ -192,6 +217,16 @@ function setStream(){
 }
 
 loadSongs();
+loadPlaylist();
+</script>
+loadSongs();
+loadPlaylist();
+</script>
+</script>
+
+</body>
+</html>
+ 
 </script>
 
 </body>
