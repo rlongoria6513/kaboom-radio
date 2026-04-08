@@ -95,6 +95,7 @@ li {
 </div>
 
 <script>
+<script>
 async function upload(){
  let file=document.getElementById('file').files[0];
  let form=new FormData();
@@ -115,7 +116,7 @@ async function loadSongs(){
   li.innerText=song;
 
   let btn=document.createElement("button");
-  btn.innerText="Add";
+  btn.innerText="Add to Playlist";
 
   btn.onclick=()=>{
     fetch('/add-to-playlist',{
@@ -157,6 +158,7 @@ function setStream(){
 
 loadSongs();
 loadPlaylist();
+</script>
 </script>
 
 </body>
