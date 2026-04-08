@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>KABOOM TEJANO NETWORK</title>
+</head>
+
+<body style="background:black;color:white;text-align:center;">
+
+<h1>KABOOM TEJANO NETWORK</h1>
+
+<button onclick="playStream()">LIVE RADIO</button>
+
+<br><br>
+
+<audio id="player" controls></audio>
+
+<script>
+function playStream(){
+  document.getElementById("player").src = "https://pstnet38.shoutcastnet.com:10044/stream";
+}
+</script>
+
+</body>
+</html>
