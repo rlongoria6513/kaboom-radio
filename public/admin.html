@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+<body style="background:black;color:white;text-align:center;">
+
+<h1>KABOOM INDUSTRY CONTROL</h1>
+
+<input type="file" id="file">
+<button onclick="upload()">Upload</button>
+
+<input id="streamUrl">
+<button onclick="setStream()">Update Stream</button>
+
+<ul id="songs"></ul>
+
+<script>
+async function upload(){
+ let file=document.getElementById('file').files[0];
+ let form=new FormData();
+ form.append("file",file);
+ await fetch('/upload',{method:'POST',body:form});
+ loadSongs();
+}
+
+async function loadSongs(){
+ let res=await fetch('/songs');
+ let data=await res.json();
+
+ let list=document.getElementById("songs");
+ list.innerHTML="";
+
+ data.forEach(song=>{
+  let li=document.createElement("li");
+  li.innerText=song;
+
+  let btn=document.createElement("button");
+  btn.innerText="Add to Playlist";
+
+  btn.onclick=()=>{
+    fetch('/add-to-playlist',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({song})
+    });
+  };
+
+  li.appendChild(btn);
+  list.appendChild(li);
+ });
+}
+
+function setStream(){
+ fetch('/set-stream',{
+  method:'POST',
+  headers:{'Content-Type':'application/json'},
+  body:JSON.stringify({
+    url:document.getElementById('streamUrl').value
+  })
+ });
+}
+
+loadSongs();
+</script>
+
+</body>
+</html>
