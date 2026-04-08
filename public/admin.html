@@ -1,93 +1,77 @@
+```html
 <!DOCTYPE html>
 <html>
 <head>
-<title>KABOOM CONTROL CENTER</title>
+<title>KABOOM INDUSTRY CONTROL CENTER</title>
 
 <style>
 body {
- background: black;
- color: white;
- font-family: Arial;
- margin:0;
+  background: #0a0a0a;
+  color: white;
+  font-family: Arial;
+  text-align: center;
 }
 
-/* HEADER */
-.header {
- padding:20px;
- text-align:center;
- font-size:28px;
- background:#111;
- box-shadow:0 0 20px red;
+h1 {
+  margin-top: 20px;
 }
 
-/* GRID */
 .container {
- display:grid;
- grid-template-columns: 1fr 1fr;
- gap:20px;
- padding:20px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  padding: 20px;
 }
 
-/* CARDS */
-.card {
- background:#111;
- padding:20px;
- border-radius:15px;
- box-shadow:0 0 15px #ff004c;
+.box {
+  border: 2px solid red;
+  border-radius: 15px;
+  padding: 20px;
+  box-shadow: 0 0 20px red;
 }
 
-/* BUTTONS */
 button {
- padding:10px;
- border:none;
- border-radius:10px;
- background:#ff004c;
- color:white;
- cursor:pointer;
- margin-top:10px;
+  background: red;
+  color: white;
+  border: none;
+  padding: 10px 15px;
+  margin-top: 10px;
+  cursor: pointer;
 }
 
-button:hover {
- background:cyan;
-}
-
-/* LIST */
-li {
- margin:10px 0;
+input {
+  padding: 8px;
+  width: 70%;
 }
 </style>
 </head>
 
 <body>
 
-<div class="header">
-🎛️ KABOOM INDUSTRY CONTROL CENTER
-</div>
+<h1>🔥 KABOOM INDUSTRY CONTROL CENTER 🔥</h1>
 
 <div class="container">
 
-<!-- UPLOAD -->
-<div class="card">
+<div class="box">
 <h2>🎵 Upload Music</h2>
 <input type="file" id="file">
+<br>
 <button onclick="upload()">Upload</button>
 </div>
 
-<!-- STREAM -->
-<div class="card">
+<div class="box">
 <h2>📡 Change Stream</h2>
 <input id="streamUrl" placeholder="Paste stream URL">
+<br>
 <button onclick="setStream()">Update Stream</button>
 </div>
 
-<!-- SONG LIST -->
-<div class="card">
-<h2>📃 Song Library</h2>
+<div class="box">
+<h2>📚 Song Library</h2>
 <ul id="songs"></ul>
 </div>
 
-<!-- PLAYLIST -->
-<div class="card">
+<div class="box">
 <h2>🎧 Playlist</h2>
 <ul id="playlist"></ul>
 </div>
@@ -95,7 +79,6 @@ li {
 </div>
 
 <script>
-<script>
 async function upload(){
  let file=document.getElementById('file').files[0];
  let form=new FormData();
@@ -116,67 +99,7 @@ async function loadSongs(){
   li.innerText=song;
 
   let btn=document.createElement("button");
-  btn.innerText="Add to Playlist";
-
-  btn.onclick=()=>{
-    fetch('/add-to-playlist',{
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({song})
-    });
-    loadPlaylist();
-  };
-
-  li.appendChild(btn);
-  list.appendChild(li);
- });
-}
-
-async function loadPlaylist(){
- let res=await fetch('/playlist');
- let data=await res.json();
-
- let list=document.getElementById("playlist");
- list.innerHTML="";
-
- data.forEach(song=>{
-  let li=document.createElement("li");
-  li.innerText=song;
-  list.appendChild(li);
- });
-}
-
-function setStream(){
- fetch('/set-stream',{
-  method:'POST',
-  headers:{'Content-Type':'application/json'},
-  body:JSON.stringify({
-    url:document.getElementById('streamUrl').value
-  })
- });
-}
-<script>
-async function upload(){
- let file=document.getElementById('file').files[0];
- let form=new FormData();
- form.append("file",file);
- await fetch('/upload',{method:'POST',body:form});
- loadSongs();
-}
-
-async function loadSongs(){
- let res=await fetch('/songs');
- let data=await res.json();
-
- let list=document.getElementById("songs");
- list.innerHTML="";
-
- data.forEach(song=>{
-  let li=document.createElement("li");
-  li.innerText=song;
-
-  let btn=document.createElement("button");
-  btn.innerText="Add to Playlist";
+  btn.innerText="Add";
 
   btn.onclick=()=>{
     fetch('/add-to-playlist',{
@@ -219,15 +142,7 @@ function setStream(){
 loadSongs();
 loadPlaylist();
 </script>
-loadSongs();
-loadPlaylist();
-</script>
-</script>
 
 </body>
 </html>
- 
-</script>
-
-</body>
-</html>
+```
