@@ -1,16 +1,98 @@
 <!DOCTYPE html>
 <html>
-<body style="background:black;color:white;text-align:center;">
+<head>
+<title>KABOOM CONTROL CENTER</title>
 
-<h1>KABOOM INDUSTRY CONTROL</h1>
+<style>
+body {
+ background: black;
+ color: white;
+ font-family: Arial;
+ margin:0;
+}
 
+/* HEADER */
+.header {
+ padding:20px;
+ text-align:center;
+ font-size:28px;
+ background:#111;
+ box-shadow:0 0 20px red;
+}
+
+/* GRID */
+.container {
+ display:grid;
+ grid-template-columns: 1fr 1fr;
+ gap:20px;
+ padding:20px;
+}
+
+/* CARDS */
+.card {
+ background:#111;
+ padding:20px;
+ border-radius:15px;
+ box-shadow:0 0 15px #ff004c;
+}
+
+/* BUTTONS */
+button {
+ padding:10px;
+ border:none;
+ border-radius:10px;
+ background:#ff004c;
+ color:white;
+ cursor:pointer;
+ margin-top:10px;
+}
+
+button:hover {
+ background:cyan;
+}
+
+/* LIST */
+li {
+ margin:10px 0;
+}
+</style>
+</head>
+
+<body>
+
+<div class="header">
+🎛️ KABOOM INDUSTRY CONTROL CENTER
+</div>
+
+<div class="container">
+
+<!-- UPLOAD -->
+<div class="card">
+<h2>🎵 Upload Music</h2>
 <input type="file" id="file">
 <button onclick="upload()">Upload</button>
+</div>
 
-<input id="streamUrl">
+<!-- STREAM -->
+<div class="card">
+<h2>📡 Change Stream</h2>
+<input id="streamUrl" placeholder="Paste stream URL">
 <button onclick="setStream()">Update Stream</button>
+</div>
 
+<!-- SONG LIST -->
+<div class="card">
+<h2>📃 Song Library</h2>
 <ul id="songs"></ul>
+</div>
+
+<!-- PLAYLIST -->
+<div class="card">
+<h2>🎧 Playlist</h2>
+<ul id="playlist"></ul>
+</div>
+
+</div>
 
 <script>
 async function upload(){
@@ -30,6 +112,55 @@ async function loadSongs(){
 
  data.forEach(song=>{
   let li=document.createElement("li");
+  li.innerText=song;
+
+  let btn=document.createElement("button");
+  btn.innerText="Add";
+
+  btn.onclick=()=>{
+    fetch('/add-to-playlist',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({song})
+    });
+    loadPlaylist();
+  };
+
+  li.appendChild(btn);
+  list.appendChild(li);
+ });
+}
+
+async function loadPlaylist(){
+ let res=await fetch('/playlist');
+ let data=await res.json();
+
+ let list=document.getElementById("playlist");
+ list.innerHTML="";
+
+ data.forEach(song=>{
+  let li=document.createElement("li");
+  li.innerText=song;
+  list.appendChild(li);
+ });
+}
+
+function setStream(){
+ fetch('/set-stream',{
+  method:'POST',
+  headers:{'Content-Type':'application/json'},
+  body:JSON.stringify({
+    url:document.getElementById('streamUrl').value
+  })
+ });
+}
+
+loadSongs();
+loadPlaylist();
+</script>
+
+</body>
+</html>
   li.innerText=song;
 
   let btn=document.createElement("button");
