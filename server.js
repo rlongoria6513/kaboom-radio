@@ -5,7 +5,7 @@ const multer = require('multer');
 const fs = require('fs');
 const app = express();
 
-app.use(express.static('public'));
+
 
 app.get('/', (req, res) => {
   res.sendFile(__dirname + '/public/intro.html');
