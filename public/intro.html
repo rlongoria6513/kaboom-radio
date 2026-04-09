@@ -5,33 +5,29 @@
 
 <style>
 body {
-  margin:0;
-  background:black;
-  overflow:hidden;
-  font-family: Arial;
-}
+  <video id="introVideo" autoplay muted playsinline>
+  <source src="intro.mp4" type="video/mp4">
+</video>
 
-video {
-  position:fixed;
-  width:100%;
-  height:100%;
-  object-fit:cover;
-}
+<button class="enter" onclick="enterSite()">ENTER NETWORK</button>
 
-.enter {
-  position:absolute;
-  top:50%;
-  left:50%;
-  transform:translate(-50%,-50%);
-  padding:15px 30px;
-  font-size:20px;
-  background:red;
-  color:white;
-  border:none;
-  cursor:pointer;
-  opacity:0;
-  transition:1s;
+<script>
+function enterSite() {
+  const video = document.getElementById("introVideo");
+
+  // 🔊 unlock sound
+  video.muted = false;
+
+  video.play().catch(() => {
+    console.log("Audio blocked");
+  });
+
+  // wait then go to main page
+  setTimeout(() => {
+    window.location.href = "index.html?play=true";
+  }, 600);
 }
+</script>
 </style>
 </head>
 
