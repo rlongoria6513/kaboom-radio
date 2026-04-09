@@ -10,9 +10,6 @@
 <meta name="theme-color" content="#ff6600">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-title" content="KABOOM RADIO">
-
 <style>
 
 /* BACKGROUND */
@@ -24,7 +21,7 @@ body{
   background: radial-gradient(circle at center, #111 0%, #000 100%);
 }
 
-/* MAIN CONTAINER */
+/* CENTER */
 .container{
   display:flex;
   flex-direction:column;
@@ -33,25 +30,13 @@ body{
   height:100vh;
 }
 
-/* TITLE */
-h1{
-  font-size:28px;
-  letter-spacing:2px;
-}
-
-/* NOW PLAYING */
-#nowPlaying{
-  opacity:0.8;
-  margin-bottom:20px;
-}
-
-/* GLASS PLAYER */
+/* PLAYER BOX */
 .playerBox{
   background: rgba(255,255,255,0.05);
   backdrop-filter: blur(15px);
   border-radius:20px;
   padding:25px;
-  width:300px;
+  width:320px;
   box-shadow: 0 0 30px rgba(255,165,0,0.2);
 }
 
@@ -61,30 +46,15 @@ h1{
   border-radius:15px;
 }
 
-/* BARS */
-.bars{
-  display:flex;
-  justify-content:center;
-  gap:5px;
-  margin:20px 0;
-}
-
-.bars span{
-  width:6px;
-  height:20px;
-  background:orange;
-  border-radius:3px;
-  animation:bounce 1s infinite;
-}
-
-@keyframes bounce{
-  0%,100%{height:10px;}
-  50%{height:30px;}
+/* TITLE */
+h1{
+  font-size:26px;
 }
 
 /* BUTTON */
 button{
   width:100%;
+  margin-top:10px;
   background: linear-gradient(45deg, orange, #ff9900);
   border:none;
   padding:15px;
@@ -92,12 +62,24 @@ button{
   border-radius:12px;
   color:white;
   font-weight:bold;
-  box-shadow: 0 0 15px orange;
+  box-shadow: 0 0 10px orange;
 }
 
-/* MOBILE */
-@media (max-width:600px){
-  h1{font-size:22px;}
+/* VOLUME */
+input[type=range]{
+  width:100%;
+  margin-top:15px;
+}
+
+/* STATIONS */
+select{
+  width:100%;
+  padding:10px;
+  border-radius:10px;
+  margin-top:15px;
+  background:black;
+  color:white;
+  border:1px solid orange;
 }
 
 </style>
@@ -108,18 +90,26 @@ button{
 
 <div class="container">
 
-<h1>🔥 KABOOM TEJANO 🔥</h1>
-<p id="nowPlaying">🎵 Loading stream...</p>
+<h1>🔥 KABOOM RADIO 🔥</h1>
+<p id="nowPlaying">🎵 Ready</p>
 
 <div class="playerBox">
 
 <img src="/public/icon-512.png" class="logo">
 
-<div class="bars">
-<span></span><span></span><span></span><span></span><span></span>
-</div>
+<!-- STATIONS -->
+<select onchange="changeStation(this.value)">
+  <option value="https://pstnet38.shoutcastnet.com:10044/stream">Main Tejano</option>
+  <option value="https://stream.zeno.fm/f3wvbbqmdg8uv">Latin Mix</option>
+  <option value="https://stream.zeno.fm/8u1qf1h7r8quv">Party Hits</option>
+</select>
 
-<button onclick="startRadio()">▶ PLAY LIVE RADIO</button>
+<!-- BUTTONS -->
+<button onclick="playRadio()">▶ PLAY</button>
+<button onclick="pauseRadio()">⏸ PAUSE</button>
+
+<!-- VOLUME -->
+<input type="range" min="0" max="1" step="0.01" onchange="setVolume(this.value)">
 
 </div>
 
@@ -131,24 +121,32 @@ button{
 
 let audio = document.getElementById("player");
 
-// 🔥 DIRECT STREAM
+// DEFAULT STREAM
 audio.src = "https://pstnet38.shoutcastnet.com:10044/stream";
 
-// PLAY BUTTON
-function startRadio(){
+// PLAY
+function playRadio(){
   audio.play();
-  document.getElementById("nowPlaying").innerText = "🎵 LIVE TEJANO STREAM";
+  document.getElementById("nowPlaying").innerText = "🎵 Playing...";
 }
 
-// FAKE SONG ROTATION
-const songs = ["Tejano Hits","Cumbia Mix","KABOOM Radio","Latin Party"];
-
-function updateNowPlaying(){
-  let random = songs[Math.floor(Math.random()*songs.length)];
-  document.getElementById("nowPlaying").innerText = "🎵 " + random;
+// PAUSE
+function pauseRadio(){
+  audio.pause();
+  document.getElementById("nowPlaying").innerText = "⏸ Paused";
 }
 
-setInterval(updateNowPlaying, 4000);
+// VOLUME
+function setVolume(val){
+  audio.volume = val;
+}
+
+// CHANGE STATION
+function changeStation(url){
+  audio.src = url;
+  audio.play();
+  document.getElementById("nowPlaying").innerText = "📻 Switched Station";
+}
 
 // PWA
 if ("serviceWorker" in navigator){
