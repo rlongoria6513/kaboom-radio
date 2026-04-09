@@ -1,3 +1,5 @@
-self.addEventListener("install", e => {
-  console.log("SW Installed");
+self.addEventListener('install', e => {
+  self.skipWaiting();
 });
+
+self.addEventListener('fetch', e => {});
