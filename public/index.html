@@ -124,7 +124,7 @@ button {
 <div id="splash">🔥 KABOOM RADIO 🔥</div>
 
 <!-- BACKGROUND VIDEO -->
-<video id="bgVideo" autoplay muted loop playsinline>
+<video id="bgVideo" autoplay muted loop playsinline preload="none">
   <source src="mainvideo.mp4" type="video/mp4">
 </video>
 
@@ -153,6 +153,9 @@ button {
 </div>
 
 <script>
+  audio.onplaying = () => {
+  document.getElementById("loading").innerText = "🎵 LIVE";
+};
 
 let audio = document.getElementById("player");
 
