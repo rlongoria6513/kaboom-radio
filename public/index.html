@@ -1,137 +1,11 @@
 <!DOCTYPE html>
 <html>
 <head>
-
 <title>KABOOM RADIO</title>
 
-<style></style>
-  body {
-  margin: 0;
-  background: black;
-  color: white;
-  text-align: center;
-  font-family: Arial;
-}
+<style>
 
-.logoWrap {
-  display: flex;
-  justify-content: center;
-  margin-top: 40px;
-}
-
-</head>
-<body>
-  body::after {
-  content: "";
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0,0,0,0.6);
-  z-index: -1;
-}
-  <video id="bgVideo" autoplay muted loop playsinline>
-  <source src="mainvideo.mp4" type="video/mp4">
-</video>
-
-<h1>🔥 KABOOM TEJANO NETWORK 🔥</h1>
-<p>🎵 Now Playing: Tejano Mix Live</p>
-
-<div class="logoWrap">
-  <img src="mainlogo.png" style="max-width: 90%;">
-</div>
-
-<div class="player">
-  <button onclick="startRadio()">▶ START RADIO</button>
-</div>
-  /* BACKGROUND VIDEO */
-#bgVideo { ... }
-
-/* DARK OVERLAY */
-body
-          ::after { ... }
-  .player {
-  z-index: 2;
-}
-}
-
-button {
-  background: orange;
-  border: none;
-  padding: 15px 25px;
-  font-size: 18px;
-  cursor: pointer;
-  border-radius: 8px;
-}
-
-.bars {
-  display: flex;
-  justify-content: center;
-  gap: 5px;
-  margin: 20px 0;
-}
-
-.bars span {
-  width: 6px;
-  height: 20px;
-  background: orange;
-  animation: bounce 1s infinite ease-in-out;
-}
-
-.bars span:nth-child(odd) {
-  animation-delay: 0.2s;
-}
-
-@keyframes bounce {
-  0%,100% { height:10px; }
-  50% { height:30px; }
-}
-body <h1>🔥 KABOOM TEJANO NETWORK 🔥</h1>
-<p>🎵 Now Playing: Tejano Mix Live</p>
-
-<!-- LOGO VIDEO -->
-<div class="logoWrap">
-  <video id="mainVideo" autoplay muted loop playsinline>
-    <source src="mainvideo.mp4" type="video/mp4">
-  </video>
-</div>
-
-<!-- PLAYER -->
-<div class="player">
-
-  <div class="bars">
-    <span></span><span></span><span></span><span></span><span></span>
-    <span></span><span></span><span></span><span></span><span></span>
-  </div>
-
-  <button onclick="startRadio()">▶ START RADIO</button>
-
-</div>{
-  margin:0;
-  background:black;
-  color:white;
-  text-align:center;
-  font-family:Arial;
-}
-
-.player {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-}
-}
-
-button {
-  background:orange;
-  border:none;
-  padding:15px 25px;
-  font-size:18px;
-  cursor:pointer;
-  border-radius:8px;
-}
-</style>/* 🎬 BACKGROUND VIDEO */
+/* 🎬 BACKGROUND VIDEO */
 #bgVideo {
   position: fixed;
   top: 0;
@@ -139,20 +13,10 @@ button {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  z-index: -1;
-  .logoWrap {
-  display: flex;
-  justify-content: center;
-  margin-top: 20px;
+  z-index: -2;
 }
 
-#mainVideo {
-  width: 600px;
-  max-width: 90%;
-}
-}
-
-/* 🧠 DARK OVERLAY (makes text readable) */
+/* 🌑 DARK OVERLAY */
 body::after {
   content: "";
   position: fixed;
@@ -161,34 +25,109 @@ body::after {
   width:100%;
   height:100%;
   background: rgba(0,0,0,0.6);
-  z-index: 0;
+  z-index: -1;
 }
+
+/* 🧠 PAGE STYLE */
+body {
+  margin:0;
+  color:white;
+  text-align:center;
+  font-family:Arial;
+}
+
+/* 🎯 CENTER LOGO */
+.logoWrap {
+  display:flex;
+  justify-content:center;
+  margin-top:40px;
+}
+
+#mainVideo {
+  width:600px;
+  max-width:90%;
+}
+
+/* 🎵 PLAYER CENTER */
+.player {
+  position:absolute;
+  top:70%;
+  left:50%;
+  transform:translate(-50%, -50%);
+  z-index:2;
+}
+
+/* 🔘 BUTTON */
+button {
+  background:orange;
+  border:none;
+  padding:15px 25px;
+  font-size:18px;
+  cursor:pointer;
+  border-radius:8px;
+}
+
+/* 🎚️ BARS */
+.bars {
+  display:flex;
+  justify-content:center;
+  gap:5px;
+  margin:20px 0;
+}
+
+.bars span {
+  width:6px;
+  height:20px;
+  background:orange;
+  animation:bounce 1s infinite ease-in-out;
+}
+
+.bars span:nth-child(odd) {
+  animation-delay:0.2s;
+}
+
+@keyframes bounce {
+  0%,100% { height:10px; }
+  50% { height:30px; }
+}
+
+</style>
 </head>
 
 <body>
 
-<h1>🔥 KABOOM TEJANO NETWORK 🔥</h1>
-<p>🎵 Now Playing: Tejano Mix Live</p>
+<!-- 🎬 BACKGROUND VIDEO -->
+<video id="bgVideo" autoplay muted loop playsinline>
+  <source src="mainvideo.mp4" type="video/mp4">
+</video>
 
+<h1>🔥 KABOOM TEJANO NETWORK 🔥</h1>
+<p id="nowPlaying">🎵 Now Playing: Tejano Mix Live</p>
+
+<!-- 🔥 LOGO VIDEO -->
+<div class="logoWrap">
+  <video id="mainVideo" autoplay muted loop playsinline>
+    <source src="mainvideo.mp4" type="video/mp4">
+  </video>
+</div>
+
+<!-- 🎵 PLAYER -->
 <div class="player">
-  
-  <!-- 🔊 HIDDEN AUDIO -->
+
   <audio id="player"></audio>
 
-  <!-- 🎚️ VISUALIZER -->
   <div class="bars">
     <span></span><span></span><span></span><span></span><span></span>
     <span></span><span></span><span></span><span></span><span></span>
   </div>
 
-  <!-- ✅ ONE BUTTON ONLY -->
   <button onclick="startRadio()">▶ START RADIO</button>
 
 </div>
 
 <script>
+
 let audio = document.getElementById("player");
-let nowPlaying = document.getElementById("nowPlaying");
 
 // load stream
 async function loadStream(){
@@ -198,7 +137,13 @@ async function loadStream(){
 }
 loadStream();
 
-// 🎵 fake now playing (for now)
+// ▶ start radio
+function startRadio(){
+  audio.muted = false;
+  audio.play();
+}
+
+// fake now playing
 const songs = [
   "Tejano Mix Live",
   "Cumbia Party",
@@ -208,36 +153,13 @@ const songs = [
 
 function updateNowPlaying(){
   let random = songs[Math.floor(Math.random() * songs.length)];
-  nowPlaying.innerText = "🎵 Now Playing: " + random;
+  document.getElementById("nowPlaying").innerText =
+    "🎵 Now Playing: " + random;
 }
 
 setInterval(updateNowPlaying, 4000);
-updateNowPlaying();
 
-// ▶ start radio button
-function startRadio(){
-  audio.muted = false;
-  audio.play();
-}
-
-// 🎧 visualizer
-const canvas = document.getElementById("visualizer");
-const ctx = canvas.getContext("2d");
-
-function drawBars(){
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-  for(let i = 0; i < 20; i++){
-    let height = Math.random() * 100;
-    ctx.fillStyle = "orange";
-    ctx.fillRect(i * 20, 100 - height, 10, height);
-  }
-}
-
-setInterval(drawBars, 100);
 </script>
 
-</body><video id="bgVideo" autoplay muted loop playsinline>
-  <source src="/mainvideo.mp4" type="video/mp4">
-</video>
+</body>
 </html>
