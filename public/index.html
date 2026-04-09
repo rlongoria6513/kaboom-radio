@@ -31,16 +31,20 @@
 }
 
 /* BACKGROUND VIDEO */
-#bgVideo{
-  position:fixed;
-  top:0;left:0;
-  width:100%;height:100%;
-  object-fit:cover;
-  z-index:-2;
+
 }
 
 /* OVERLAY */
-body::after{
+body
+  body{
+  margin:0;
+  color:white;
+  text-align:center;
+  font-family:Arial;
+  background: radial-gradient(circle at center, #111 0%, #000 100%);
+}
+  
+  ::after{
   content:"";
   position:fixed;
   top:0;left:0;
@@ -121,9 +125,7 @@ button{
 <div id="splash">🔥 KABOOM RADIO 🔥</div>
 
 <!-- VIDEO -->
-<video id="bgVideo" autoplay muted loop playsinline>
-  <source src="/public/mainvideo.mp4" type="video/mp4">
-</video>
+
 
 <h1>🔥 KABOOM TEJANO NETWORK 🔥</h1>
 <p id="nowPlaying">🎵 Loading...</p>
