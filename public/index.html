@@ -4,12 +4,53 @@
 
 <title>KABOOM RADIO</title>
 
-<style>
+<style></style>
+  body {
+  margin: 0;
+  background: black;
+  color: white;
+  text-align: center;
+  font-family: Arial;
+}
+
+.logoWrap {
+  display: flex;
+  justify-content: center;
+  margin-top: 40px;
+}
+
+</head>
+<body>
+  body::after {
+  content: "";
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.6);
+  z-index: -1;
+}
+  <video id="bgVideo" autoplay muted loop playsinline>
+  <source src="mainvideo.mp4" type="video/mp4">
+</video>
+
+<h1>🔥 KABOOM TEJANO NETWORK 🔥</h1>
+<p>🎵 Now Playing: Tejano Mix Live</p>
+
+<div class="logoWrap">
+  <img src="mainlogo.png" style="max-width: 90%;">
+</div>
+
+<div class="player">
+  <button onclick="startRadio()">▶ START RADIO</button>
+</div>
   /* BACKGROUND VIDEO */
 #bgVideo { ... }
 
 /* DARK OVERLAY */
-body::after { ... }
+body
+          ::after { ... }
   .player {
   z-index: 2;
 }
