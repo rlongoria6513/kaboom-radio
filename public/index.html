@@ -11,18 +11,32 @@ body {margin:0;background:black;color:white;text-align:center;}
 
 <h1>KABOOM TEJANO NETWORK</h1>
 
-<audio id="player" controls></audio>
+<div class="player">
+  <audio id="player" controls></audio>
+  <br><br>
+  <button onclick="startRadio()">▶ START RADIO</button>
+</div>
 
 <script>
 let audio = document.getElementById("player");
 
 async function loadStream(){
- let res = await fetch('/stream');
- let url = await res.text();
- audio.src = url;
+  try {
+    let res = await fetch('/stream');
+    let url = await res.text();
+    audio.src = url;
+  } catch(e){
+    console.log("Stream error");
+  }
 }
 
 loadStream();
+
+// 🔥 REQUIRED for iPhone + browsers
+function startRadio(){
+  audio.muted = false;
+  audio.play();
+}
 </script>
 
 </body>
