@@ -150,13 +150,13 @@ button {
 <!-- PLAYER -->
 <div class="player">
 
-  <audio id="player"></audio>
+  <audio id="player" preload="auto"></audio>
 
   <div class="bars">
     <span></span><span></span><span></span><span></span><span></span>
   </div>
 
-  <button onclick="startRadio()">▶ START RADIO</button>
+  <button onclick="startRadio()">🔥 PLAY LIVE RADIO</button>
 
 </div>
 
@@ -201,8 +201,23 @@ const songs = ["Tejano Mix","Cumbia Party","KABOOM Radio"];
 
 function updateNowPlaying(){
   let random = songs[Math.floor(Math.random()*songs.length)];
+
   document.getElementById("nowPlaying").innerText =
     "🎵 Now Playing: " + random;
+
+  // 🔥 update lock screen
+  if ('mediaSession' in navigator) {
+    navigator.mediaSession.metadata = new MediaMetadata({
+      title: random,
+      artist: "KABOOM RADIO",
+      album: "Tejano Live",
+      artwork: [
+        { src: "/icon-192.png", sizes: "192x192", type: "image/png" },
+        { src: "/icon-512.png", sizes: "512x512", type: "image/png" }
+      ]
+    });
+  }
+}
 }
 
 setInterval(updateNowPlaying, 4000);
