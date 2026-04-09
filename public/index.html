@@ -1,3 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>KABOOM RADIO</title>
+
+<style>
+body {
+  margin:0;
+  background:black;
+  color:white;
+  text-align:center;
+  font-family:Arial;
+}
+
+.player {
+  margin-top:120px;
+}
+
+button {
+  background:orange;
+  border:none;
+  padding:15px 25px;
+  font-size:18px;
+  cursor:pointer;
+  border-radius:8px;
+}
+</style>
+</head>
+
+<body>
+
+<h1>🔥 KABOOM TEJANO NETWORK 🔥</h1>
+
+<div class="player">
+  <audio id="player" controls></audio>
+  <br><br>
+  <button onclick="startRadio()">▶ START RADIO</button>
+</div>
+
 <script>
 let audio = document.getElementById("player");
 
@@ -13,22 +52,11 @@ async function loadStream(){
 
 loadStream();
 
-// 🔥 detect coming from intro
-const params = new URLSearchParams(window.location.search);
-
-if(params.get("play") === "true"){
-  // delay helps browser allow audio
-  setTimeout(() => {
-    audio.muted = false;
-    audio.play().catch(() => {
-      console.log("Autoplay blocked");
-    });
-  }, 500);
-}
-
-// backup manual button
 function startRadio(){
   audio.muted = false;
   audio.play();
 }
 </script>
+
+</body>
+</html>
