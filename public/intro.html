@@ -41,7 +41,13 @@ video {
   <source src="intro.mp4" type="video/mp4">
 </video>
 
-<button class="enter" id="enterBtn">ENTER NETWORK</button>
+<button class="enter" id="enterBtn"><button onclick="enterSite()">ENTER NETWORK</button>
+
+<script>
+function enterSite(){
+  window.location.href = "index.html?play=true";
+}
+</script></button>
 
 <script>
 const video = document.getElementById("introVideo");
