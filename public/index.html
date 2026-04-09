@@ -5,7 +5,7 @@
 
 <style>
 
-/* 🎬 BACKGROUND VIDEO */
+/* BACKGROUND VIDEO */
 #bgVideo {
   position: fixed;
   top: 0;
@@ -16,7 +16,7 @@
   z-index: -2;
 }
 
-/* 🌑 DARK OVERLAY */
+/* DARK OVERLAY */
 body::after {
   content: "";
   position: fixed;
@@ -28,7 +28,7 @@ body::after {
   z-index: -1;
 }
 
-/* 🧠 PAGE STYLE */
+/* PAGE */
 body {
   margin:0;
   color:white;
@@ -36,28 +36,27 @@ body {
   font-family:Arial;
 }
 
-/* 🎯 CENTER LOGO */
+/* LOGO */
 .logoWrap {
   display:flex;
   justify-content:center;
-  margin-top:40px;
+  margin-top:30px;
 }
 
 #mainVideo {
-  width:600px;
+  width:500px;
   max-width:90%;
 }
 
-/* 🎵 PLAYER CENTER */
+/* PLAYER */
 .player {
   position:absolute;
-  top:70%;
+  top:65%;
   left:50%;
   transform:translate(-50%, -50%);
-  z-index:2;
 }
 
-/* 🔘 BUTTON */
+/* BUTTON */
 button {
   background:orange;
   border:none;
@@ -67,7 +66,7 @@ button {
   border-radius:8px;
 }
 
-/* 🎚️ BARS */
+/* BARS */
 .bars {
   display:flex;
   justify-content:center;
@@ -79,11 +78,7 @@ button {
   width:6px;
   height:20px;
   background:orange;
-  animation:bounce 1s infinite ease-in-out;
-}
-
-.bars span:nth-child(odd) {
-  animation-delay:0.2s;
+  animation:bounce 1s infinite;
 }
 
 @keyframes bounce {
@@ -91,12 +86,19 @@ button {
   50% { height:30px; }
 }
 
+/* MOBILE */
+@media (max-width:600px){
+  #mainVideo { width:95%; }
+  .player { top:75%; }
+  button { width:80%; }
+}
+
 </style>
 </head>
 
 <body>
 
-<!-- 🎬 BACKGROUND VIDEO -->
+<!-- BACKGROUND VIDEO -->
 <video id="bgVideo" autoplay muted loop playsinline>
   <source src="mainvideo.mp4" type="video/mp4">
 </video>
@@ -104,20 +106,19 @@ button {
 <h1>🔥 KABOOM TEJANO NETWORK 🔥</h1>
 <p id="nowPlaying">🎵 Now Playing: Tejano Mix Live</p>
 
-<!-- 🔥 LOGO VIDEO -->
+<!-- LOGO -->
 <div class="logoWrap">
   <video id="mainVideo" autoplay muted loop playsinline>
     <source src="mainvideo.mp4" type="video/mp4">
   </video>
 </div>
 
-<!-- 🎵 PLAYER -->
+<!-- PLAYER -->
 <div class="player">
 
   <audio id="player"></audio>
 
   <div class="bars">
-    <span></span><span></span><span></span><span></span><span></span>
     <span></span><span></span><span></span><span></span><span></span>
   </div>
 
@@ -126,7 +127,6 @@ button {
 </div>
 
 <script>
-
 let audio = document.getElementById("player");
 
 // load stream
@@ -137,28 +137,22 @@ async function loadStream(){
 }
 loadStream();
 
-// ▶ start radio
+// start radio
 function startRadio(){
   audio.muted = false;
   audio.play();
 }
 
 // fake now playing
-const songs = [
-  "Tejano Mix Live",
-  "Cumbia Party",
-  "KABOOM Radio",
-  "Latin Hits Mix"
-];
+const songs = ["Tejano Mix","Cumbia Party","KABOOM Radio"];
 
 function updateNowPlaying(){
-  let random = songs[Math.floor(Math.random() * songs.length)];
+  let random = songs[Math.floor(Math.random()*songs.length)];
   document.getElementById("nowPlaying").innerText =
     "🎵 Now Playing: " + random;
 }
 
 setInterval(updateNowPlaying, 4000);
-
 </script>
 
 </body>
