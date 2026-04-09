@@ -37,7 +37,14 @@ video {
 
 <body>
 
-<video id="introVideo" autoplay muted playsinline>
+<script>
+let video = document.getElementById("introVideo");
+
+document.addEventListener("click", () => {
+  video.muted = false;
+  video.play();
+});
+</script>
   <source src="intro.mp4" type="video/mp4">
 </video>
 
