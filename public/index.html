@@ -1,22 +1,3 @@
-<!DOCTYPE html>
-<html>
-<head>
-<title>KABOOM INDUSTRY</title>
-<style>
-body {margin:0;background:black;color:white;text-align:center;}
-.player {margin-top:100px;}
-</style>
-</head>
-<body>
-
-<h1>KABOOM TEJANO NETWORK</h1>
-
-<div class="player">
-  <audio id="player" controls></audio>
-  <br><br>
-  <button onclick="startRadio()">▶ START RADIO</button>
-</div>
-
 <script>
 let audio = document.getElementById("player");
 
@@ -32,12 +13,22 @@ async function loadStream(){
 
 loadStream();
 
-// 🔥 REQUIRED for iPhone + browsers
+// 🔥 detect coming from intro
+const params = new URLSearchParams(window.location.search);
+
+if(params.get("play") === "true"){
+  // delay helps browser allow audio
+  setTimeout(() => {
+    audio.muted = false;
+    audio.play().catch(() => {
+      console.log("Autoplay blocked");
+    });
+  }, 500);
+}
+
+// backup manual button
 function startRadio(){
   audio.muted = false;
   audio.play();
 }
 </script>
-
-</body>
-</html>
