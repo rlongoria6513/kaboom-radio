@@ -30,9 +30,10 @@ button {
 <body>
 
 <h1>🔥 KABOOM TEJANO NETWORK 🔥</h1>
-
+<h2 id="nowPlaying">🎵 Now Playing...</h2>
 <div class="player">
   <audio id="player" controls></audio>
+  <canvas id="visualizer" width="400" height="100"></canvas>
   <button onclick="startRadio()">▶ START RADIO</button>
   <br><br>
   <button onclick="startRadio()">▶ START RADIO</button>
@@ -40,7 +41,9 @@ button {
 
 <script>
 let audio = document.getElementById("player");
+let nowPlaying = document.getElementById("nowPlaying");
 
+// load stream
 async function loadStream(){
   let res = await fetch('/stream');
   let url = await res.text();
@@ -48,22 +51,43 @@ async function loadStream(){
 }
 loadStream();
 
-// 👇 detect intro redirect
-const params = new URLSearchParams(window.location.search);
+// 🎵 fake now playing (for now)
+const songs = [
+  "Tejano Mix Live",
+  "Cumbia Party",
+  "KABOOM Radio",
+  "Latin Hits Mix"
+];
 
-if(params.get("play") === "true"){
-  setTimeout(() => {
-    audio.muted = false;
-    audio.play().catch(() => {
-      console.log("Autoplay blocked");
-    });
-  }, 500);
+function updateNowPlaying(){
+  let random = songs[Math.floor(Math.random() * songs.length)];
+  nowPlaying.innerText = "🎵 Now Playing: " + random;
 }
 
+setInterval(updateNowPlaying, 4000);
+updateNowPlaying();
+
+// ▶ start radio button
 function startRadio(){
   audio.muted = false;
   audio.play();
 }
+
+// 🎧 visualizer
+const canvas = document.getElementById("visualizer");
+const ctx = canvas.getContext("2d");
+
+function drawBars(){
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  for(let i = 0; i < 20; i++){
+    let height = Math.random() * 100;
+    ctx.fillStyle = "orange";
+    ctx.fillRect(i * 20, 100 - height, 10, height);
+  }
+}
+
+setInterval(drawBars, 100);
 </script>
 
 </body>
