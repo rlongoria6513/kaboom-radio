@@ -37,11 +37,38 @@ video {
 
 <body>
 
-<video id="introVideo" autoplay muted>
+<video id="introVideo" autoplay muted playsinline>
   <source src="intro.mp4" type="video/mp4">
 </video>
 
-<button class="enter" id="enterBtn"><button onclick="enterSite()">ENTER NETWORK</button>
+<button class="enter" id="enterBtn" onclick="enterSite()">
+  ENTER NETWORK
+</button>
+
+<audio id="preloadAudio"></audio>
+
+<script>
+async function enterSite(){
+
+  let audio = document.getElementById("preloadAudio");
+
+  try {
+    let res = await fetch('/stream');
+    let url = await res.text();
+
+    audio.src = url;
+
+    // 🔥 unlock audio BEFORE leaving page
+    await audio.play();
+
+  } catch(e){
+    console.log("Audio unlock failed");
+  }
+
+  // go to main page
+  window.location.href = "index.html";
+}
+</script>
 
 <script>
 function enterSite(){
