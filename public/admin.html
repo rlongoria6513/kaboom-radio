@@ -1,148 +1,78 @@
-```html
 <!DOCTYPE html>
 <html>
 <head>
-<title>KABOOM INDUSTRY CONTROL CENTER</title>
+
+<title>KABOOM ADMIN</title>
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
-body {
-  background: #0a0a0a;
-  color: white;
-  font-family: Arial;
-  text-align: center;
+body{
+  background:black;
+  color:white;
+  font-family:Arial;
+  text-align:center;
+  padding:20px;
 }
 
-h1 {
-  margin-top: 20px;
+input, button{
+  width:90%;
+  padding:15px;
+  margin:10px;
+  font-size:16px;
+  border-radius:10px;
+  border:none;
 }
 
-.container {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 20px;
-  padding: 20px;
+button{
+  background:orange;
+  color:white;
 }
 
-.box {
-  border: 2px solid red;
-  border-radius: 15px;
-  padding: 20px;
-  box-shadow: 0 0 20px red;
-}
-
-button {
-  background: red;
-  color: white;
-  border: none;
-  padding: 10px 15px;
-  margin-top: 10px;
-  cursor: pointer;
-}
-
-input {
-  padding: 8px;
-  width: 70%;
-}
 </style>
+
 </head>
 
 <body>
 
-<h1>🔥 KABOOM INDUSTRY CONTROL CENTER 🔥</h1>
+<h1>🔥 KABOOM CONTROL PANEL 🔥</h1>
 
-<div class="container">
+<input id="stationName" placeholder="Station Name">
+<input id="stationURL" placeholder="Stream URL">
 
-<div class="box">
-<h2>🎵 Upload Music</h2>
-<input type="file" id="file">
-<br>
-<button onclick="upload()">Upload</button>
-</div>
+<button onclick="addStation()">➕ Add Station</button>
 
-<div class="box">
-<h2>📡 Change Stream</h2>
-<input id="streamUrl" placeholder="Paste stream URL">
-<br>
-<button onclick="setStream()">Update Stream</button>
-</div>
-
-<div class="box">
-<h2>📚 Song Library</h2>
-<ul id="songs"></ul>
-</div>
-
-<div class="box">
-<h2>🎧 Playlist</h2>
-<ul id="playlist"></ul>
-</div>
-
-</div>
+<h2>Saved Stations</h2>
+<div id="stations"></div>
 
 <script>
-async function upload(){
- let file=document.getElementById('file').files[0];
- let form=new FormData();
- form.append("file",file);
- await fetch('/upload',{method:'POST',body:form});
- loadSongs();
+
+function addStation(){
+  let name = document.getElementById("stationName").value;
+  let url = document.getElementById("stationURL").value;
+
+  let stations = JSON.parse(localStorage.getItem("stations") || "[]");
+
+  stations.push({name, url});
+  localStorage.setItem("stations", JSON.stringify(stations));
+
+  loadStations();
 }
 
-async function loadSongs(){
- let res=await fetch('/songs');
- let data=await res.json();
+function loadStations(){
+  let stations = JSON.parse(localStorage.getItem("stations") || "[]");
+  let div = document.getElementById("stations");
 
- let list=document.getElementById("songs");
- list.innerHTML="";
+  div.innerHTML = "";
 
- data.forEach(song=>{
-  let li=document.createElement("li");
-  li.innerText=song;
-
-  let btn=document.createElement("button");
-  btn.innerText="Add";
-
-  btn.onclick=()=>{
-    fetch('/add-to-playlist',{
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({song})
-    });
-    loadPlaylist();
-  };
-
-  li.appendChild(btn);
-  list.appendChild(li);
- });
+  stations.forEach(s=>{
+    div.innerHTML += `<p>${s.name}</p>`;
+  });
 }
 
-async function loadPlaylist(){
- let res=await fetch('/playlist');
- let data=await res.json();
+loadStations();
 
- let list=document.getElementById("playlist");
- list.innerHTML="";
-
- data.forEach(song=>{
-  let li=document.createElement("li");
-  li.innerText=song;
-  list.appendChild(li);
- });
-}
-
-function setStream(){
- fetch('/set-stream',{
-  method:'POST',
-  headers:{'Content-Type':'application/json'},
-  body:JSON.stringify({
-    url:document.getElementById('streamUrl').value
-  })
- });
-}
-
-loadSongs();
-loadPlaylist();
 </script>
 
 </body>
 </html>
-```
