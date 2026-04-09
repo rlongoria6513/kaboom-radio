@@ -3,7 +3,41 @@
 <head>
 <title>KABOOM RADIO</title>
 
-<style>
+<style>.player {
+  margin-top: 100px;
+}
+
+button {
+  background: orange;
+  border: none;
+  padding: 15px 25px;
+  font-size: 18px;
+  cursor: pointer;
+  border-radius: 8px;
+}
+
+.bars {
+  display: flex;
+  justify-content: center;
+  gap: 5px;
+  margin: 20px 0;
+}
+
+.bars span {
+  width: 6px;
+  height: 20px;
+  background: orange;
+  animation: bounce 1s infinite ease-in-out;
+}
+
+.bars span:nth-child(odd) {
+  animation-delay: 0.2s;
+}
+
+@keyframes bounce {
+  0%,100% { height:10px; }
+  50% { height:30px; }
+}
 body {
   margin:0;
   background:black;
@@ -30,13 +64,22 @@ button {
 <body>
 
 <h1>🔥 KABOOM TEJANO NETWORK 🔥</h1>
-<h2 id="nowPlaying">🎵 Now Playing...</h2>
+<p>🎵 Now Playing: Tejano Mix Live</p>
+
 <div class="player">
-  <audio id="player" controls></audio>
-  <canvas id="visualizer" width="400" height="100"></canvas>
+  
+  <!-- 🔊 HIDDEN AUDIO -->
+  <audio id="player"></audio>
+
+  <!-- 🎚️ VISUALIZER -->
+  <div class="bars">
+    <span></span><span></span><span></span><span></span><span></span>
+    <span></span><span></span><span></span><span></span><span></span>
+  </div>
+
+  <!-- ✅ ONE BUTTON ONLY -->
   <button onclick="startRadio()">▶ START RADIO</button>
-  <br><br>
-  <button onclick="startRadio()">▶ START RADIO</button>
+
 </div>
 
 <script>
