@@ -1,11 +1,11 @@
-app.get('/', (req, res) => {
-  res.sendFile(__dirname + '/public/intro.html');
-});
+
 
 const express = require('express');
 const multer = require('multer');
 const fs = require('fs');
-const app = express();
+const app = express();app.get('/', (req, res) => {
+  res.sendFile(__dirname + '/public/intro.html');
+});
 
 const storage = multer.diskStorage({
   destination: 'uploads/',
