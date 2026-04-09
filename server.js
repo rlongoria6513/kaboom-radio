@@ -1,3 +1,7 @@
+app.get('/', (req, res) => {
+  res.sendFile(__dirname + '/public/intro.html');
+});
+
 const express = require('express');
 const multer = require('multer');
 const fs = require('fs');
