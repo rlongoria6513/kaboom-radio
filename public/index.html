@@ -150,6 +150,53 @@ function changeStation(url){
 // PWA
 if ("serviceWorker" in navigator){
   navigator.serviceWorker.register("/public/sw.js");
+  // 🔥 GET REAL SONG FROM STREAM
+async function getNowPlaying(){
+
+  try{
+    let res = await fetch("https://pstnet38.shoutcastnet.com:10044/7.html");
+    let text = await res.text();
+
+    let parts = text.split(",");
+    let song = parts[6];
+
+    if(song){
+      document.getElementById("nowPlaying").innerText = "🎵 " + song;
+
+      let split = song.split(" - ");
+      let artist = split[0] || "";
+      let title = split[1] || song;
+
+      fetchArtwork(artist, title);
+    }
+
+  }catch(e){
+    console.log("error getting song");
+  }
+}
+
+// 🔥 GET ALBUM ART
+async function fetchArtwork(artist, title){
+
+  try{
+    let query = encodeURIComponent(artist + " " + title);
+
+    let res = await fetch(`https://itunes.apple.com/search?term=${query}&limit=1`);
+    let data = await res.json();
+
+    if(data.results.length > 0){
+      let art = data.results[0].artworkUrl100.replace("100x100", "500x500");
+      document.getElementById("artwork").src = art;
+    }
+
+  }catch(e){
+    console.log("artwork error");
+  }
+}
+
+// 🔁 UPDATE EVERY 10 SECONDS
+setInterval(getNowPlaying, 10000);
+getNowPlaying();
 }
 
 </script>
