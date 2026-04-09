@@ -3,7 +3,14 @@ const multer = require('multer');
 const fs = require('fs');
 const app = express();
 
-const upload = multer({ dest: 'uploads/' });
+const storage = multer.diskStorage({
+  destination: 'uploads/',
+  filename: (req, file, cb) => {
+    cb(null, file.originalname); // 👈 KEEP REAL NAME
+  }
+});
+
+const upload = multer({ storage });
 
 app.use(express.static('public'));
 app.use('/uploads', express.static('uploads'));
@@ -24,7 +31,7 @@ function saveSongs(){
 }
 
 app.post('/upload', upload.single('file'), (req, res) => {
- songs.push(req.file.filename);
+ songs.push(req.file.originalname);
  saveSongs();
  res.send("Uploaded!");
 });
