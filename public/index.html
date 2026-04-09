@@ -1,9 +1,7 @@
 <!DOCTYPE html>
-
-
 <html>
 <head>
- <head>
+
 <title>KABOOM RADIO</title>
 
 <link rel="manifest" href="/manifest.json">
@@ -16,34 +14,6 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 
 <style>
-
-<style>
-  @media (max-width:600px){
-
-  h1 {
-    font-size:18px;
-    margin-top:10px;
-  }
-
-  p {
-    font-size:14px;
-  }
-
-  #mainVideo {
-    width:95%;
-    margin-top:10px;
-  }
-
-  .player {
-    top:70%;
-  }
-
-  button {
-    width:85%;
-    font-size:18px;
-  }
-
-}
 
 /* BACKGROUND VIDEO */
 #bgVideo {
@@ -91,10 +61,9 @@ body {
 /* PLAYER */
 .player {
   position:absolute;
-  top:60%;
+  top:65%;
   left:50%;
   transform:translate(-50%, -50%);
-}
 }
 
 /* BUTTON */
@@ -135,6 +104,7 @@ button {
 }
 
 </style>
+
 </head>
 
 <body>
@@ -194,12 +164,12 @@ function updateNowPlaying(){
 }
 
 setInterval(updateNowPlaying, 4000);
-</script>
-<script>
+
+// service worker
 if ("serviceWorker" in navigator) {
-  navigator.serviceWorker.register("/sw.js")
-    .then(() => console.log("Service Worker Ready"));
+  navigator.serviceWorker.register("/sw.js");
 }
 </script>
+
 </body>
 </html>
