@@ -58,7 +58,28 @@ button {
   cursor:pointer;
   border-radius:8px;
 }
-</style>
+</style>/* 🎬 BACKGROUND VIDEO */
+#bgVideo {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: -1;
+}
+
+/* 🧠 DARK OVERLAY (makes text readable) */
+body::after {
+  content: "";
+  position: fixed;
+  top:0;
+  left:0;
+  width:100%;
+  height:100%;
+  background: rgba(0,0,0,0.6);
+  z-index: -1;
+}
 </head>
 
 <body>
@@ -133,5 +154,7 @@ function drawBars(){
 setInterval(drawBars, 100);
 </script>
 
-</body>
+</body><video id="bgVideo" autoplay muted loop playsinline>
+  <source src="/mainvideo.mp4" type="video/mp4">
+</video>
 </html>
