@@ -10,12 +10,19 @@ body {
   overflow:hidden;
 }
 
-/* FULLSCREEN VIDEO */
+/* VIDEO */
 video {
   position:fixed;
   width:100%;
   height:100%;
   object-fit:cover;
+  opacity:0;
+  animation:fadeIn 2s ease forwards;
+}
+
+/* FADE IN */
+@keyframes fadeIn {
+  to { opacity:1; }
 }
 
 /* BUTTON */
@@ -24,14 +31,24 @@ video {
   top:50%;
   left:50%;
   transform:translate(-50%, -50%);
-  padding:15px 30px;
-  font-size:20px;
-  background:red;
+  padding:18px 40px;
+  font-size:22px;
+  background:orange;
   color:white;
   border:none;
   cursor:pointer;
   opacity:0;
-  transition:1s;
+  border-radius:8px;
+
+  /* 🔥 glow effect */
+  box-shadow:0 0 20px orange;
+  transition:all 0.4s ease;
+}
+
+/* HOVER EFFECT */
+.enter:hover {
+  transform:translate(-50%, -50%) scale(1.1);
+  box-shadow:0 0 40px orange;
 }
 </style>
 
@@ -39,23 +56,22 @@ video {
 
 <body>
 
-<!-- ✅ VIDEO MUST BE HERE -->
 <video id="introVideo" autoplay muted playsinline>
   <source src="/intro.mp4" type="video/mp4">
 </video>
 
 <button class="enter" id="enterBtn" onclick="enterSite()">
-ENTER NETWORK
+🔥 ENTER NETWORK
 </button>
 
 <script>
 const video = document.getElementById("introVideo");
 const btn = document.getElementById("enterBtn");
 
-// show button after video starts
-video.onplay = () => {
+// show button after 2 seconds
+setTimeout(() => {
   btn.style.opacity = 1;
-};
+}, 2000);
 
 // click anywhere to enable sound
 document.addEventListener("click", () => {
@@ -63,9 +79,14 @@ document.addEventListener("click", () => {
   video.play();
 });
 
-// go to main page
+// smooth transition to main site
 function enterSite(){
-  window.location.href = "/index.html?play=true";
+  document.body.style.opacity = 0;
+  document.body.style.transition = "1s";
+
+  setTimeout(() => {
+    window.location.href = "/index.html?play=true";
+  }, 800);
 }
 </script>
 
