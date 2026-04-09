@@ -6,6 +6,9 @@
   <link rel="manifest" href="/manifest.json">
 <meta name="theme-color" content="#ff6600">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#ff6600">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>KABOOM RADIO</title>
 
@@ -187,6 +190,11 @@ function updateNowPlaying(){
 
 setInterval(updateNowPlaying, 4000);
 </script>
-
+<script>
+if ("serviceWorker" in navigator) {
+  navigator.serviceWorker.register("/sw.js")
+    .then(() => console.log("Service Worker Ready"));
+}
+</script>
 </body>
 </html>
