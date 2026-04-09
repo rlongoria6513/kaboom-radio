@@ -33,6 +33,7 @@ button {
 
 <div class="player">
   <audio id="player" controls></audio>
+  <button onclick="startRadio()">▶ START RADIO</button>
   <br><br>
   <button onclick="startRadio()">▶ START RADIO</button>
 </div>
@@ -41,16 +42,23 @@ button {
 let audio = document.getElementById("player");
 
 async function loadStream(){
-  try {
-    let res = await fetch('/stream');
-    let url = await res.text();
-    audio.src = url;
-  } catch(e){
-    console.log("Stream error");
-  }
+  let res = await fetch('/stream');
+  let url = await res.text();
+  audio.src = url;
 }
-
 loadStream();
+
+// 👇 detect intro redirect
+const params = new URLSearchParams(window.location.search);
+
+if(params.get("play") === "true"){
+  setTimeout(() => {
+    audio.muted = false;
+    audio.play().catch(() => {
+      console.log("Autoplay blocked");
+    });
+  }, 500);
+}
 
 function startRadio(){
   audio.muted = false;
