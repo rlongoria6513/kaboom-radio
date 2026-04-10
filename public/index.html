@@ -37,22 +37,35 @@ h1{font-size:22px;}
 button{
   width:100%;
   margin-top:10px;
-  background:orange;
-  border:none;
   padding:15px;
-  font-size:18px;
+  border:none;
   border-radius:10px;
+  background:orange;
   color:white;
+  font-size:18px;
 }
 
 input[type=range]{
   width:100%;
-  margin-top:15px;
+  margin-top:10px;
 }
 
-canvas{
+#artwork{
+  width:100%;
+  border-radius:12px;
+  margin-bottom:10px;
+}
+
+#visualizer{
   display:block;
-  margin:15px auto;
+  margin:10px auto;
+}
+
+.linkBtn{
+  display:block;
+  margin-top:8px;
+  color:white;
+  text-decoration:none;
 }
 </style>
 
@@ -63,17 +76,31 @@ canvas{
 <div class="container">
 
 <h1>🔥 KABOOM RADIO 🔥</h1>
-<p id="nowPlaying">🎵 Ready</p>
+<p id="nowPlaying">🎵 Loading...</p>
 
 <div class="playerBox">
 
+<!-- ARTWORK -->
+<img id="artwork" src="https://via.placeholder.com/300">
+
+<!-- VISUALIZER -->
 <canvas id="visualizer" width="260" height="260"></canvas>
 
+<!-- CONTROLS -->
 <button onclick="playRadio()">▶ PLAY</button>
 <button onclick="pauseRadio()">⏸ PAUSE</button>
 
 <input type="range" min="0" max="1" step="0.01" value="0.7"
        oninput="setVolume(this.value)">
+
+<!-- AFFILIATE LINKS -->
+<a id="itunesLink" class="linkBtn" target="_blank">
+🍎 Listen on Apple Music
+</a>
+
+<a id="amazonLink" class="linkBtn" target="_blank">
+🛒 Buy on Amazon
+</a>
 
 </div>
 
@@ -90,11 +117,11 @@ let audioCtx;
 let analyser;
 let source;
 let gainNode;
+let currentSong = "";
 
 // ▶ PLAY
 function playRadio(){
 
-  // iPhone unlock fix
   if(!audioCtx){
     audioCtx = new (window.AudioContext || window.webkitAudioContext)();
   }
@@ -134,7 +161,56 @@ function setVolume(val){
   }
 }
 
-// 🎵 VISUALIZER (CIRCLE)
+// 🎵 SONG DETECTION
+async function getNowPlaying(){
+  try{
+    let res = await fetch("https://pstnet38.shoutcastnet.com:10044/7.html");
+    let text = await res.text();
+
+    let song = text.split(",")[6];
+
+    if(song && song !== currentSong){
+
+      currentSong = song;
+      document.getElementById("nowPlaying").innerText = "🎵 " + song;
+
+      let parts = song.split(" - ");
+      let artist = parts[0] || "";
+      let title = parts[1] || song;
+
+      fetchArtwork(artist, title);
+    }
+  }catch(e){}
+}
+
+// 🎨 ARTWORK + LINKS
+async function fetchArtwork(artist, title){
+
+  let query = encodeURIComponent(artist + " " + title);
+
+  let res = await fetch(`https://itunes.apple.com/search?term=${query}&limit=1`);
+  let data = await res.json();
+
+  if(data.results.length > 0){
+
+    let track = data.results[0];
+
+    document.getElementById("artwork").src =
+      track.artworkUrl100.replace("100x100","500x500");
+
+    document.getElementById("itunesLink").href =
+      track.trackViewUrl;
+
+    document.getElementById("amazonLink").href =
+      `https://www.amazon.com/s?k=${query}&i=digital-music`;
+  }
+}
+
+// 🔄 UPDATE SONG
+setInterval(getNowPlaying, 10000);
+getNowPlaying();
+
+// 🔥 VISUALIZER
 function drawVisualizer(){
 
   const canvas = document.getElementById("visualizer");
