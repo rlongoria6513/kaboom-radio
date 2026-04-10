@@ -50,22 +50,9 @@ input[type=range]{
   margin-top:10px;
 }
 
-#artwork{
-  width:100%;
-  border-radius:12px;
-  margin-bottom:10px;
-}
-
-#visualizer{
+canvas{
   display:block;
   margin:10px auto;
-}
-
-.linkBtn{
-  display:block;
-  margin-top:8px;
-  color:white;
-  text-decoration:none;
 }
 </style>
 
@@ -76,31 +63,17 @@ input[type=range]{
 <div class="container">
 
 <h1>🔥 KABOOM RADIO 🔥</h1>
-<p id="nowPlaying">🎵 Loading...</p>
+<p id="nowPlaying">🎵 Ready</p>
 
 <div class="playerBox">
 
-<!-- ARTWORK -->
-<img id="artwork" src="https://via.placeholder.com/300">
-
-<!-- VISUALIZER -->
 <canvas id="visualizer" width="260" height="260"></canvas>
 
-<!-- CONTROLS -->
 <button onclick="playRadio()">▶ PLAY</button>
 <button onclick="pauseRadio()">⏸ PAUSE</button>
 
 <input type="range" min="0" max="1" step="0.01" value="0.7"
        oninput="setVolume(this.value)">
-
-<!-- AFFILIATE LINKS -->
-<a id="itunesLink" class="linkBtn" target="_blank">
-🍎 Listen on Apple Music
-</a>
-
-<a id="amazonLink" class="linkBtn" target="_blank">
-🛒 Buy on Amazon
-</a>
 
 </div>
 
@@ -113,11 +86,12 @@ input[type=range]{
 let audio = document.getElementById("player");
 audio.src = "https://pstnet38.shoutcastnet.com:10044/stream";
 
+// 🔥 IMPORTANT FIX FOR iPHONE VOLUME
+audio.volume = 0.7;
+
 let audioCtx;
 let analyser;
 let source;
-let gainNode;
-let currentSong = "";
 
 // ▶ PLAY
 function playRadio(){
@@ -135,82 +109,31 @@ function playRadio(){
   if(!source){
 
     source = audioCtx.createMediaElementSource(audio);
-
     analyser = audioCtx.createAnalyser();
-    gainNode = audioCtx.createGain();
 
     source.connect(analyser);
-    analyser.connect(gainNode);
-    gainNode.connect(audioCtx.destination);
+    analyser.connect(audioCtx.destination);
 
     analyser.fftSize = 256;
 
     drawVisualizer();
   }
+
+  document.getElementById("nowPlaying").innerText = "🎵 Playing...";
 }
 
 // ⏸ PAUSE
 function pauseRadio(){
   audio.pause();
+  document.getElementById("nowPlaying").innerText = "⏸ Paused";
 }
 
-// 🔊 VOLUME FIX
+// 🔊 VOLUME FIX (REAL FIX)
 function setVolume(val){
-  if(gainNode){
-    gainNode.gain.value = val;
-  }
+  audio.volume = val;   // ← THIS is the correct iPhone fix
 }
 
-// 🎵 SONG DETECTION
-async function getNowPlaying(){
-  try{
-    let res = await fetch("https://pstnet38.shoutcastnet.com:10044/7.html");
-    let text = await res.text();
-
-    let song = text.split(",")[6];
-
-    if(song && song !== currentSong){
-
-      currentSong = song;
-      document.getElementById("nowPlaying").innerText = "🎵 " + song;
-
-      let parts = song.split(" - ");
-      let artist = parts[0] || "";
-      let title = parts[1] || song;
-
-      fetchArtwork(artist, title);
-    }
-  }catch(e){}
-}
-
-// 🎨 ARTWORK + LINKS
-async function fetchArtwork(artist, title){
-
-  let query = encodeURIComponent(artist + " " + title);
-
-  let res = await fetch(`https://itunes.apple.com/search?term=${query}&limit=1`);
-  let data = await res.json();
-
-  if(data.results.length > 0){
-
-    let track = data.results[0];
-
-    document.getElementById("artwork").src =
-      track.artworkUrl100.replace("100x100","500x500");
-
-    document.getElementById("itunesLink").href =
-      track.trackViewUrl;
-
-    document.getElementById("amazonLink").href =
-      `https://www.amazon.com/s?k=${query}&i=digital-music`;
-  }
-}
-
-// 🔄 UPDATE SONG
-setInterval(getNowPlaying, 10000);
-getNowPlaying();
-
-// 🔥 VISUALIZER
+// 🎧 REAL VISUALIZER (FIXED)
 function drawVisualizer(){
 
   const canvas = document.getElementById("visualizer");
@@ -229,28 +152,23 @@ function drawVisualizer(){
     let cx = canvas.width/2;
     let cy = canvas.height/2;
 
-    // base ring
-    ctx.beginPath();
-    ctx.arc(cx, cy, 60, 0, Math.PI*2);
-    ctx.strokeStyle = "rgba(255,140,0,0.3)";
-    ctx.lineWidth = 8;
-    ctx.stroke();
-
-    // bars
     for(let i=0;i<bufferLength;i++){
+
       let val = dataArray[i];
       let angle = (i/bufferLength)*Math.PI*2;
-      let h = val * 0.6;
+      let radius = 60;
+      let height = val * 0.5;
 
-      let x1 = cx + Math.cos(angle)*60;
-      let y1 = cy + Math.sin(angle)*60;
-      let x2 = cx + Math.cos(angle)*(60+h);
-      let y2 = cy + Math.sin(angle)*(60+h);
+      let x1 = cx + Math.cos(angle)*radius;
+      let y1 = cy + Math.sin(angle)*radius;
+      let x2 = cx + Math.cos(angle)*(radius + height);
+      let y2 = cy + Math.sin(angle)*(radius + height);
 
       ctx.beginPath();
       ctx.moveTo(x1,y1);
       ctx.lineTo(x2,y2);
-      ctx.strokeStyle="orange";
+      ctx.strokeStyle = "orange";
+      ctx.lineWidth = 2;
       ctx.stroke();
     }
   }
