@@ -3,7 +3,6 @@
 <head>
 
 <title>KABOOM RADIO</title>
-
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
@@ -30,24 +29,24 @@ body{
   border-radius:20px;
   padding:20px;
   width:100%;
-  max-width:340px;
+  max-width:360px;
 }
 
 h1{font-size:22px;}
 
 button{
   width:100%;
-  margin-top:10px;
+  margin-top:8px;
   padding:14px;
   border-radius:10px;
   border:none;
-  background: orange;
+  background:orange;
   color:white;
 }
 
 .linkBtn{
   display:block;
-  margin-top:8px;
+  margin-top:6px;
   padding:10px;
   background:#222;
   color:white;
@@ -80,11 +79,21 @@ button{
 
 <canvas id="visualizer" width="260" height="260"></canvas>
 
+<select onchange="changeStation(this.value)">
+  <option value="https://pstnet38.shoutcastnet.com:10044/stream">Main Tejano</option>
+  <option value="https://stream.zeno.fm/f3wvbbqmdg8uv">Latin Mix</option>
+</select>
+
 <button onclick="playRadio()">▶ PLAY</button>
 <button onclick="pauseRadio()">⏸ PAUSE</button>
 
-<a id="itunesLink" class="linkBtn" target="_blank">🍎 Open in Apple Music</a>
-<a id="amazonLink" class="linkBtn" target="_blank">🛒 Open in Amazon Music</a>
+<input type="range" min="0" max="1" step="0.01" onchange="setVolume(this.value)">
+
+<a id="itunesLink" class="linkBtn" target="_blank">🍎 Apple Music</a>
+<a id="amazonLink" class="linkBtn" target="_blank">🛒 Amazon Music</a>
+
+<button onclick="saveFavorite()">⭐ Save Song</button>
+<button onclick="shareSong()">📤 Share</button>
 
 </div>
 
@@ -97,7 +106,8 @@ button{
 let audio = document.getElementById("player");
 audio.src = "https://pstnet38.shoutcastnet.com:10044/stream";
 
-let audioCtx, analyser, source;
+let audioCtx, analyser, source, gainNode;
+let currentSong = "";
 
 // PLAY
 function playRadio(){
@@ -105,13 +115,17 @@ function playRadio(){
 
   if(!audioCtx){
     audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
     analyser = audioCtx.createAnalyser();
+    gainNode = audioCtx.createGain();
     source = audioCtx.createMediaElementSource(audio);
 
     source.connect(analyser);
-    analyser.connect(audioCtx.destination);
+    analyser.connect(gainNode);
+    gainNode.connect(audioCtx.destination);
 
     analyser.fftSize = 256;
+
     drawVisualizer();
   }
 }
@@ -121,7 +135,20 @@ function pauseRadio(){
   audio.pause();
 }
 
-// 🎵 GET SONG FROM STREAM
+// VOLUME FIX
+function setVolume(v){
+  if(gainNode){
+    gainNode.gain.value = v;
+  }
+}
+
+// STATION SWITCH
+function changeStation(url){
+  audio.src = url;
+  audio.play();
+}
+
+// 🎵 GET SONG
 async function getNowPlaying(){
   try{
     let res = await fetch("https://pstnet38.shoutcastnet.com:10044/7.html");
@@ -129,7 +156,8 @@ async function getNowPlaying(){
 
     let song = text.split(",")[6];
 
-    if(song){
+    if(song && song !== currentSong){
+      currentSong = song;
       document.getElementById("nowPlaying").innerText = "🎵 " + song;
 
       let parts = song.split(" - ");
@@ -142,37 +170,53 @@ async function getNowPlaying(){
   }catch(e){}
 }
 
-// 🎨 GET ARTWORK + LINKS
+// 🎨 ARTWORK + LINKS
 async function fetchArtwork(artist, title){
-
   let query = encodeURIComponent(artist + " " + title);
 
-  // iTunes
   let res = await fetch(`https://itunes.apple.com/search?term=${query}&limit=1`);
   let data = await res.json();
 
   if(data.results.length > 0){
-
     let track = data.results[0];
 
-    let art = track.artworkUrl100.replace("100x100","500x500");
-    document.getElementById("artwork").src = art;
+    document.getElementById("artwork").src =
+      track.artworkUrl100.replace("100x100","500x500");
 
     document.getElementById("itunesLink").href = track.trackViewUrl;
 
-    // Amazon search link
-    let amazonURL = `https://www.amazon.com/s?k=${query}&i=digital-music`;
-    document.getElementById("amazonLink").href = amazonURL;
+    document.getElementById("amazonLink").href =
+      `https://www.amazon.com/s?k=${query}&i=digital-music`;
   }
 }
 
-// 🔁 UPDATE SONG
+// ⭐ SAVE SONG
+function saveFavorite(){
+  let list = JSON.parse(localStorage.getItem("favorites") || "[]");
+  list.push(currentSong);
+  localStorage.setItem("favorites", JSON.stringify(list));
+  alert("Saved!");
+}
+
+// 📤 SHARE
+function shareSong(){
+  if(navigator.share){
+    navigator.share({
+      title:"KABOOM RADIO",
+      text:currentSong,
+      url:window.location.href
+    });
+  }else{
+    alert("Sharing not supported");
+  }
+}
+
+// 🔁 UPDATE
 setInterval(getNowPlaying, 10000);
 getNowPlaying();
 
 // 🔥 VISUALIZER
 function drawVisualizer(){
-
   const canvas = document.getElementById("visualizer");
   const ctx = canvas.getContext("2d");
 
