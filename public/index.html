@@ -32,8 +32,6 @@ body{
   max-width:360px;
 }
 
-h1{font-size:22px;}
-
 button{
   width:100%;
   margin-top:8px;
@@ -52,6 +50,12 @@ button{
   color:white;
   text-decoration:none;
   border-radius:8px;
+}
+
+#adBox{
+  margin-top:15px;
+  background:#000;
+  padding:10px;
 }
 
 #artwork{
@@ -84,12 +88,31 @@ button{
 
 <input type="range" min="0" max="1" step="0.01" onchange="setVolume(this.value)">
 
-<a id="itunesLink" class="linkBtn" target="_blank">🍎 Listen on Apple Music</a>
-<a id="amazonLink" class="linkBtn" target="_blank">🛒 Buy on Amazon</a>
+<a id="itunesLink" class="linkBtn" target="_blank">🍎 Apple Music</a>
+<a id="amazonLink" class="linkBtn" target="_blank">🛒 Amazon Music</a>
 
-<p style="font-size:12px; opacity:0.6;">
-Support KABOOM Radio by listening or buying music 🎵
-</p>
+<!-- 💵 DONATE -->
+<a href="YOUR_PAYPAL_LINK" class="linkBtn">💵 Support / Donate</a>
+
+<!-- 🧢 MERCH -->
+<a href="#" class="linkBtn">🧢 Shop AZTEC GEAR</a>
+
+<!-- 📺 ADS -->
+<div id="adBox">
+  <!-- Google AdSense -->
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=YOUR_AD_CLIENT"
+     crossorigin="anonymous"></script>
+
+  <ins class="adsbygoogle"
+       style="display:block"
+       data-ad-client="YOUR_AD_CLIENT"
+       data-ad-slot="1234567890"
+       data-ad-format="auto"></ins>
+
+  <script>
+       (adsbygoogle = window.adsbygoogle || []).push({});
+  </script>
+</div>
 
 </div>
 
@@ -105,7 +128,6 @@ audio.src = "https://pstnet38.shoutcastnet.com:10044/stream";
 let audioCtx, analyser, source, gainNode;
 let currentSong = "";
 
-// PLAY
 function playRadio(){
   audio.play();
 
@@ -121,29 +143,24 @@ function playRadio(){
     gainNode.connect(audioCtx.destination);
 
     analyser.fftSize = 256;
-
     drawVisualizer();
   }
 }
 
-// PAUSE
 function pauseRadio(){
   audio.pause();
 }
 
-// VOLUME FIX
 function setVolume(v){
   if(gainNode){
     gainNode.gain.value = v;
   }
 }
 
-// 🎵 GET SONG FROM STREAM
 async function getNowPlaying(){
   try{
     let res = await fetch("https://pstnet38.shoutcastnet.com:10044/7.html");
     let text = await res.text();
-
     let song = text.split(",")[6];
 
     if(song && song !== currentSong){
@@ -156,11 +173,9 @@ async function getNowPlaying(){
 
       fetchArtwork(artist, title);
     }
-
   }catch(e){}
 }
 
-// 🎨 ARTWORK + AFFILIATE LINKS
 async function fetchArtwork(artist, title){
 
   let query = encodeURIComponent(artist + " " + title);
@@ -169,29 +184,23 @@ async function fetchArtwork(artist, title){
   let data = await res.json();
 
   if(data.results.length > 0){
-
     let track = data.results[0];
 
     document.getElementById("artwork").src =
       track.artworkUrl100.replace("100x100","500x500");
 
-    // 🍎 APPLE AFFILIATE
     document.getElementById("itunesLink").href =
       track.trackViewUrl + "?at=YOUR_APPLE_TOKEN";
 
-    // 🛒 AMAZON AFFILIATE
     document.getElementById("amazonLink").href =
       `https://www.amazon.com/s?k=${query}&i=digital-music&tag=YOURAMAZONID`;
   }
 }
 
-// 🔁 UPDATE
 setInterval(getNowPlaying, 10000);
 getNowPlaying();
 
-// 🔥 VISUALIZER
 function drawVisualizer(){
-
   const canvas = document.getElementById("visualizer");
   const ctx = canvas.getContext("2d");
 
