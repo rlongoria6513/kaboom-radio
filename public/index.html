@@ -79,21 +79,17 @@ button{
 
 <canvas id="visualizer" width="260" height="260"></canvas>
 
-<select onchange="changeStation(this.value)">
-  <option value="https://pstnet38.shoutcastnet.com:10044/stream">Main Tejano</option>
-  <option value="https://stream.zeno.fm/f3wvbbqmdg8uv">Latin Mix</option>
-</select>
-
 <button onclick="playRadio()">▶ PLAY</button>
 <button onclick="pauseRadio()">⏸ PAUSE</button>
 
 <input type="range" min="0" max="1" step="0.01" onchange="setVolume(this.value)">
 
-<a id="itunesLink" class="linkBtn" target="_blank">🍎 Apple Music</a>
-<a id="amazonLink" class="linkBtn" target="_blank">🛒 Amazon Music</a>
+<a id="itunesLink" class="linkBtn" target="_blank">🍎 Listen on Apple Music</a>
+<a id="amazonLink" class="linkBtn" target="_blank">🛒 Buy on Amazon</a>
 
-<button onclick="saveFavorite()">⭐ Save Song</button>
-<button onclick="shareSong()">📤 Share</button>
+<p style="font-size:12px; opacity:0.6;">
+Support KABOOM Radio by listening or buying music 🎵
+</p>
 
 </div>
 
@@ -142,13 +138,7 @@ function setVolume(v){
   }
 }
 
-// STATION SWITCH
-function changeStation(url){
-  audio.src = url;
-  audio.play();
-}
-
-// 🎵 GET SONG
+// 🎵 GET SONG FROM STREAM
 async function getNowPlaying(){
   try{
     let res = await fetch("https://pstnet38.shoutcastnet.com:10044/7.html");
@@ -170,44 +160,28 @@ async function getNowPlaying(){
   }catch(e){}
 }
 
-// 🎨 ARTWORK + LINKS
+// 🎨 ARTWORK + AFFILIATE LINKS
 async function fetchArtwork(artist, title){
+
   let query = encodeURIComponent(artist + " " + title);
 
   let res = await fetch(`https://itunes.apple.com/search?term=${query}&limit=1`);
   let data = await res.json();
 
   if(data.results.length > 0){
+
     let track = data.results[0];
 
     document.getElementById("artwork").src =
       track.artworkUrl100.replace("100x100","500x500");
 
-    document.getElementById("itunesLink").href = track.trackViewUrl;
+    // 🍎 APPLE AFFILIATE
+    document.getElementById("itunesLink").href =
+      track.trackViewUrl + "?at=YOUR_APPLE_TOKEN";
 
+    // 🛒 AMAZON AFFILIATE
     document.getElementById("amazonLink").href =
-      `https://www.amazon.com/s?k=${query}&i=digital-music`;
-  }
-}
-
-// ⭐ SAVE SONG
-function saveFavorite(){
-  let list = JSON.parse(localStorage.getItem("favorites") || "[]");
-  list.push(currentSong);
-  localStorage.setItem("favorites", JSON.stringify(list));
-  alert("Saved!");
-}
-
-// 📤 SHARE
-function shareSong(){
-  if(navigator.share){
-    navigator.share({
-      title:"KABOOM RADIO",
-      text:currentSong,
-      url:window.location.href
-    });
-  }else{
-    alert("Sharing not supported");
+      `https://www.amazon.com/s?k=${query}&i=digital-music&tag=YOURAMAZONID`;
   }
 }
 
@@ -217,6 +191,7 @@ getNowPlaying();
 
 // 🔥 VISUALIZER
 function drawVisualizer(){
+
   const canvas = document.getElementById("visualizer");
   const ctx = canvas.getContext("2d");
 
