@@ -38,10 +38,11 @@ body{
   box-shadow: 0 0 30px rgba(255,165,0,0.2);
 }
 
-/* ARTWORK */
+/* LOGO */
 .logo{
   width:100%;
   border-radius:15px;
+  object-fit:cover;
 }
 
 /* TITLE */
@@ -87,14 +88,20 @@ input{
 
 <div class="playerBox">
 
-<img id="artwork" src="https://via.placeholder.com/500x500.png?text=KABOOM" class="logo">
+<!-- 🔥 SAFE IMAGE (never breaks) -->
+<img id="artwork"
+src="https://images.unsplash.com/photo-1511379938547-c1f69419868d?w=800"
+class="logo">
 
+<!-- VISUALIZER -->
 <canvas id="visualizer" width="260" height="260"></canvas>
 
+<!-- STATION -->
 <select onchange="changeStation(this.value)">
   <option value="https://pstnet38.shoutcastnet.com:10044/stream">Main Tejano</option>
 </select>
 
+<!-- CONTROLS -->
 <button onclick="playRadio()">▶ PLAY</button>
 <button onclick="pauseRadio()">⏸ PAUSE</button>
 
