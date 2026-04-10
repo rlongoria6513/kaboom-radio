@@ -32,38 +32,26 @@ body{
   max-width:360px;
 }
 
+h1{font-size:22px;}
+
 button{
   width:100%;
-  margin-top:8px;
-  padding:14px;
-  border-radius:10px;
-  border:none;
+  margin-top:10px;
   background:orange;
+  border:none;
+  padding:15px;
+  font-size:18px;
+  border-radius:10px;
   color:white;
 }
 
-.linkBtn{
-  display:block;
-  margin-top:6px;
-  padding:10px;
-  background:#222;
-  color:white;
-  text-decoration:none;
-  border-radius:8px;
-}
-
-#adBox{
-  margin-top:15px;
-  background:#000;
-  padding:10px;
-}
-
-#artwork{
+input[type=range]{
   width:100%;
-  border-radius:12px;
+  margin-top:15px;
 }
 
-#visualizer{
+canvas{
+  display:block;
   margin:15px auto;
 }
 </style>
@@ -75,44 +63,17 @@ button{
 <div class="container">
 
 <h1>🔥 KABOOM RADIO 🔥</h1>
-<p id="nowPlaying">🎵 Loading...</p>
+<p id="nowPlaying">🎵 Ready</p>
 
 <div class="playerBox">
-
-<img id="artwork" src="https://via.placeholder.com/500" />
 
 <canvas id="visualizer" width="260" height="260"></canvas>
 
 <button onclick="playRadio()">▶ PLAY</button>
 <button onclick="pauseRadio()">⏸ PAUSE</button>
 
-<input type="range" min="0" max="1" step="0.01" onchange="setVolume(this.value)">
-
-<a id="itunesLink" class="linkBtn" target="_blank">🍎 Apple Music</a>
-<a id="amazonLink" class="linkBtn" target="_blank">🛒 Amazon Music</a>
-
-<!-- 💵 DONATE -->
-<a href="YOUR_PAYPAL_LINK" class="linkBtn">💵 Support / Donate</a>
-
-<!-- 🧢 MERCH -->
-<a href="#" class="linkBtn">🧢 Shop AZTEC GEAR</a>
-
-<!-- 📺 ADS -->
-<div id="adBox">
-  <!-- Google AdSense -->
-  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=YOUR_AD_CLIENT"
-     crossorigin="anonymous"></script>
-
-  <ins class="adsbygoogle"
-       style="display:block"
-       data-ad-client="YOUR_AD_CLIENT"
-       data-ad-slot="1234567890"
-       data-ad-format="auto"></ins>
-
-  <script>
-       (adsbygoogle = window.adsbygoogle || []).push({});
-  </script>
-</div>
+<input type="range" min="0" max="1" step="0.01" value="0.7"
+       oninput="setVolume(this.value)">
 
 </div>
 
@@ -125,82 +86,57 @@ button{
 let audio = document.getElementById("player");
 audio.src = "https://pstnet38.shoutcastnet.com:10044/stream";
 
-let audioCtx, analyser, source, gainNode;
-let currentSong = "";
+let audioCtx;
+let analyser;
+let source;
+let gainNode;
 
+// ▶ PLAY
 function playRadio(){
-  audio.play();
 
+  // iPhone unlock fix
   if(!audioCtx){
     audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  }
+
+  if(audioCtx.state === "suspended"){
+    audioCtx.resume();
+  }
+
+  audio.play();
+
+  if(!source){
+
+    source = audioCtx.createMediaElementSource(audio);
 
     analyser = audioCtx.createAnalyser();
     gainNode = audioCtx.createGain();
-    source = audioCtx.createMediaElementSource(audio);
 
     source.connect(analyser);
     analyser.connect(gainNode);
     gainNode.connect(audioCtx.destination);
 
     analyser.fftSize = 256;
+
     drawVisualizer();
   }
 }
 
+// ⏸ PAUSE
 function pauseRadio(){
   audio.pause();
 }
 
-function setVolume(v){
+// 🔊 VOLUME FIX
+function setVolume(val){
   if(gainNode){
-    gainNode.gain.value = v;
+    gainNode.gain.value = val;
   }
 }
 
-async function getNowPlaying(){
-  try{
-    let res = await fetch("https://pstnet38.shoutcastnet.com:10044/7.html");
-    let text = await res.text();
-    let song = text.split(",")[6];
-
-    if(song && song !== currentSong){
-      currentSong = song;
-      document.getElementById("nowPlaying").innerText = "🎵 " + song;
-
-      let parts = song.split(" - ");
-      let artist = parts[0] || "";
-      let title = parts[1] || song;
-
-      fetchArtwork(artist, title);
-    }
-  }catch(e){}
-}
-
-async function fetchArtwork(artist, title){
-
-  let query = encodeURIComponent(artist + " " + title);
-
-  let res = await fetch(`https://itunes.apple.com/search?term=${query}&limit=1`);
-  let data = await res.json();
-
-  if(data.results.length > 0){
-    let track = data.results[0];
-
-    document.getElementById("artwork").src =
-      track.artworkUrl100.replace("100x100","500x500");
-
-    document.getElementById("itunesLink").href =
-      track.trackViewUrl + "?at=YOUR_APPLE_TOKEN";
-
-    document.getElementById("amazonLink").href =
-      `https://www.amazon.com/s?k=${query}&i=digital-music&tag=YOURAMAZONID`;
-  }
-}
-
-setInterval(getNowPlaying, 10000);
-getNowPlaying();
-
+// 🎵 VISUALIZER (CIRCLE)
 function drawVisualizer(){
+
   const canvas = document.getElementById("visualizer");
   const ctx = canvas.getContext("2d");
 
@@ -217,16 +153,18 @@ function drawVisualizer(){
     let cx = canvas.width/2;
     let cy = canvas.height/2;
 
+    // base ring
     ctx.beginPath();
     ctx.arc(cx, cy, 60, 0, Math.PI*2);
     ctx.strokeStyle = "rgba(255,140,0,0.3)";
     ctx.lineWidth = 8;
     ctx.stroke();
 
+    // bars
     for(let i=0;i<bufferLength;i++){
       let val = dataArray[i];
       let angle = (i/bufferLength)*Math.PI*2;
-      let h = val*0.6;
+      let h = val * 0.6;
 
       let x1 = cx + Math.cos(angle)*60;
       let y1 = cy + Math.sin(angle)*60;
