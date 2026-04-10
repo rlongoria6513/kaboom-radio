@@ -7,8 +7,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
-
-/* BACKGROUND */
 body{
   margin:0;
   font-family:Arial;
@@ -17,7 +15,6 @@ body{
   background: radial-gradient(circle at center, #111 0%, #000 100%);
 }
 
-/* CENTER */
 .container{
   display:flex;
   flex-direction:column;
@@ -27,7 +24,6 @@ body{
   padding:20px;
 }
 
-/* PLAYER BOX */
 .playerBox{
   background: rgba(255,255,255,0.05);
   backdrop-filter: blur(15px);
@@ -38,12 +34,8 @@ body{
   box-shadow: 0 0 30px rgba(255,165,0,0.2);
 }
 
-/* TITLE */
-h1{
-  font-size:22px;
-}
+h1{font-size:22px;}
 
-/* BUTTON */
 button{
   width:100%;
   margin-top:10px;
@@ -56,23 +48,15 @@ button{
   font-weight:bold;
 }
 
-/* VOLUME */
 input{
   width:100%;
   margin-top:10px;
 }
 
-/* VISUALIZER */
 #visualizer{
   margin:20px auto;
   display:block;
 }
-
-/* MOBILE */
-@media (max-width:600px){
-  h1{font-size:20px;}
-}
-
 </style>
 
 </head>
@@ -99,7 +83,7 @@ input{
 
 </div>
 
-<audio id="player"></audio>
+<audio id="player" crossorigin="anonymous"></audio>
 
 </div>
 
@@ -108,7 +92,7 @@ input{
 let audio = document.getElementById("player");
 audio.src = "https://pstnet38.shoutcastnet.com:10044/stream";
 
-let audioCtx, analyser, source;
+let audioCtx, analyser, source, gainNode;
 
 // PLAY
 function playRadio(){
@@ -117,11 +101,16 @@ function playRadio(){
 
   if(!audioCtx){
     audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
     analyser = audioCtx.createAnalyser();
+    gainNode = audioCtx.createGain();
 
     source = audioCtx.createMediaElementSource(audio);
+
+    // 🔥 FIXED AUDIO ROUTING
     source.connect(analyser);
-    analyser.connect(audioCtx.destination);
+    analyser.connect(gainNode);
+    gainNode.connect(audioCtx.destination);
 
     analyser.fftSize = 256;
 
@@ -134,9 +123,11 @@ function pauseRadio(){
   audio.pause();
 }
 
-// VOLUME
+// 🔥 REAL VOLUME CONTROL (FIXED)
 function setVolume(v){
-  audio.volume = v;
+  if(gainNode){
+    gainNode.gain.value = v;
+  }
 }
 
 // CHANGE STATION
@@ -145,7 +136,7 @@ function changeStation(url){
   audio.play();
 }
 
-// 🔥 STYLE 3 — RING VISUALIZER
+// 🔥 STYLE 3 RING VISUALIZER
 function drawVisualizer(){
 
   const canvas = document.getElementById("visualizer");
@@ -164,7 +155,7 @@ function drawVisualizer(){
     let cx = canvas.width/2;
     let cy = canvas.height/2;
 
-    // 🔥 GLOW RING BASE
+    // GLOW RING
     ctx.beginPath();
     ctx.arc(cx, cy, 60, 0, Math.PI * 2);
     ctx.strokeStyle = "rgba(255,140,0,0.3)";
@@ -173,26 +164,25 @@ function drawVisualizer(){
     ctx.shadowColor = "orange";
     ctx.stroke();
 
-    // 🔥 BARS AROUND RING
+    // BARS
     for(let i=0;i<bufferLength;i++){
-
       let val = dataArray[i];
       let angle = (i/bufferLength) * Math.PI * 2;
 
-      let baseRadius = 60;
-      let barHeight = val * 0.6;
+      let base = 60;
+      let height = val * 0.6;
 
-      let x1 = cx + Math.cos(angle)*baseRadius;
-      let y1 = cy + Math.sin(angle)*baseRadius;
+      let x1 = cx + Math.cos(angle)*base;
+      let y1 = cy + Math.sin(angle)*base;
 
-      let x2 = cx + Math.cos(angle)*(baseRadius + barHeight);
-      let y2 = cy + Math.sin(angle)*(baseRadius + barHeight);
+      let x2 = cx + Math.cos(angle)*(base+height);
+      let y2 = cy + Math.sin(angle)*(base+height);
 
-      let gradient = ctx.createLinearGradient(x1,y1,x2,y2);
-      gradient.addColorStop(0,"orange");
-      gradient.addColorStop(1,"red");
+      let grad = ctx.createLinearGradient(x1,y1,x2,y2);
+      grad.addColorStop(0,"orange");
+      grad.addColorStop(1,"red");
 
-      ctx.strokeStyle = gradient;
+      ctx.strokeStyle = grad;
       ctx.lineWidth = 2;
 
       ctx.beginPath();
@@ -201,13 +191,13 @@ function drawVisualizer(){
       ctx.stroke();
     }
 
-    // 🔥 CENTER PULSE
+    // CENTER PULSE
     let avg = dataArray.reduce((a,b)=>a+b,0)/bufferLength;
     let pulse = avg * 0.2;
 
     ctx.beginPath();
     ctx.arc(cx, cy, 20 + pulse, 0, Math.PI*2);
-    ctx.fillStyle = "rgba(255,140,0,0.9)";
+    ctx.fillStyle = "orange";
     ctx.shadowBlur = 30;
     ctx.shadowColor = "orange";
     ctx.fill();
