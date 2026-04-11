@@ -2,7 +2,7 @@
 <html>
 <head>
 
-<title>KABOOM RADIO NETWORK</title>
+<title>KABOOM RADIO PRO</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
@@ -10,24 +10,28 @@ body{
   margin:0;
   font-family:Arial;
   color:white;
-  text-align:center;
-  background: radial-gradient(circle at center, #111 0%, #000 100%);
+  background:#0b0b0b;
 }
 
 .container{
   padding:20px;
-}
-
-.playerBox{
-  background: rgba(255,255,255,0.05);
-  backdrop-filter: blur(15px);
-  border-radius:20px;
-  padding:15px;
-  max-width:320px;
+  max-width:400px;
   margin:auto;
 }
 
-select, button{
+/* 🎧 SPOTIFY STYLE CARD */
+.card{
+  background:#181818;
+  border-radius:15px;
+  padding:15px;
+  margin-top:15px;
+}
+
+h2{
+  text-align:center;
+}
+
+button, select{
   width:100%;
   margin-top:10px;
   padding:12px;
@@ -36,20 +40,32 @@ select, button{
 }
 
 button{
-  background:orange;
+  background:#ff6600;
   color:white;
 }
 
 canvas{
-  width:150px;
-  height:150px;
-  margin:10px auto;
+  width:140px;
+  height:140px;
   display:block;
+  margin:auto;
 }
 
-.stationTitle{
+/* 💰 AD BOX */
+.adBox{
   margin-top:15px;
-  font-size:18px;
+  background:#222;
+  padding:15px;
+  border-radius:10px;
+  text-align:center;
+}
+
+/* 🧠 ADMIN */
+textarea{
+  width:100%;
+  height:80px;
+  margin-top:10px;
+  border-radius:10px;
 }
 </style>
 
@@ -59,11 +75,12 @@ canvas{
 
 <div class="container">
 
-<h2>🔥 KABOOM RADIO NETWORK 🔥</h2>
+<h2>🔥 KABOOM RADIO PRO 🔥</h2>
 
-<div class="playerBox">
+<!-- 🎧 PLAYER -->
+<div class="card">
 
-<div class="stationTitle" id="stationName">Main Tejano</div>
+<div id="stationName">Main Tejano</div>
 
 <select onchange="changeStation(this.value)">
   <option value="main">Main Tejano</option>
@@ -75,20 +92,45 @@ canvas{
 
 <button onclick="playRadio()">▶ PLAY</button>
 <button onclick="pauseRadio()">⏸ PAUSE</button>
-
-<!-- 🔥 AUTO PLAYLIST BUTTON (FIXED LOCATION) -->
-<button onclick="startPlaylist()">🎵 AUTO PLAYLIST</button>
+<button onclick="startPlaylist()">🎵 AUTO DJ</button>
 
 </div>
 
+<!-- 🎵 ON DEMAND -->
+<div class="card">
 <h3>🎵 On Demand</h3>
 
 <select onchange="playOnDemand(this.value)">
   <option value="">Select Song</option>
-  <option value="audio/song1.mp3">Tejano Track 1</option>
-  <option value="audio/song2.mp3">Latin Track 1</option>
-  <option value="audio/song3.mp3">Party Track 1</option>
+  <option value="audio/song1.mp3">Track 1</option>
+  <option value="audio/song2.mp3">Track 2</option>
 </select>
+</div>
+
+<!-- 💰 MONEY -->
+<div class="card">
+<h3>💰 Support / Shop</h3>
+
+<a href="https://www.amazon.com/s?k=tejano+music" target="_blank">
+<button>🛒 Buy Tejano Music</button>
+</a>
+
+<div class="adBox">
+📢 Your Ad Here (Google AdSense later)
+</div>
+</div>
+
+<!-- 🧠 ADMIN -->
+<div class="card">
+<h3>🧠 Admin Playlist</h3>
+
+<textarea id="songList">
+audio/song1.mp3
+audio/song2.mp3
+</textarea>
+
+<button onclick="updatePlaylist()">💾 Save Playlist</button>
+</div>
 
 <audio id="player"></audio>
 
@@ -98,13 +140,10 @@ canvas{
 
 let audio = document.getElementById("player");
 
-/* =======================
-   🔥 PLAYLIST (FIXED)
-======================= */
+/* 🎵 PLAYLIST */
 let playlist = [
   "audio/song1.mp3",
-  "audio/song2.mp3",
-  "audio/song3.mp3"
+  "audio/song2.mp3"
 ];
 
 let currentTrack = 0;
@@ -112,43 +151,37 @@ let currentTrack = 0;
 function startPlaylist(){
   audio.src = playlist[currentTrack];
   audio.play();
-  updateTrackName();
 }
 
-audio.addEventListener("ended", () => {
+audio.addEventListener("ended", ()=>{
   currentTrack++;
-  if(currentTrack >= playlist.length){
-    currentTrack = 0;
-  }
+  if(currentTrack >= playlist.length) currentTrack = 0;
   startPlaylist();
 });
 
-function updateTrackName(){
-  let name = playlist[currentTrack].split("/").pop();
-  document.getElementById("stationName").innerText = "🎵 " + name;
+/* 🧠 ADMIN */
+function updatePlaylist(){
+  let text = document.getElementById("songList").value;
+  playlist = text.split("\n").map(s => s.trim()).filter(s => s);
+  alert("Playlist Updated");
 }
 
-/* =======================
-   📻 STATIONS
-======================= */
+/* 📻 STATIONS */
 let stations = {
   main: "https://pstnet38.shoutcastnet.com:10044/stream",
   latin: "https://stream.zeno.fm/f3wvbbqmdg8uv",
   party: "https://stream.zeno.fm/8u1qf1h7r8quv"
 };
 
-let stationNames = {
-  main: "Main Tejano",
-  latin: "Latin Mix",
-  party: "Party Hits"
-};
+function changeStation(val){
+  audio.src = stations[val];
+  document.getElementById("stationName").innerText = val.toUpperCase();
+  audio.play();
+}
 
-let currentStation = "main";
-audio.src = stations[currentStation];
-
+/* ▶ PLAY */
 let audioCtx, analyser, source;
 
-// ▶ PLAY
 function playRadio(){
 
   if(!audioCtx){
@@ -173,20 +206,11 @@ function playRadio(){
   }
 }
 
-// ⏸ PAUSE
 function pauseRadio(){
   audio.pause();
 }
 
-// 🔁 CHANGE STATION
-function changeStation(val){
-  currentStation = val;
-  audio.src = stations[val];
-  document.getElementById("stationName").innerText = stationNames[val];
-  audio.play();
-}
-
-// 🎵 ON DEMAND
+/* 🎵 ON DEMAND */
 function playOnDemand(file){
   if(file){
     audio.src = file;
@@ -194,7 +218,7 @@ function playOnDemand(file){
   }
 }
 
-// 🎧 VISUALIZER
+/* 🎧 VISUALIZER */
 function drawVisualizer(){
 
   const canvas = document.getElementById("visualizer");
@@ -213,24 +237,23 @@ function drawVisualizer(){
     let cx = canvas.width/2;
     let cy = canvas.height/2;
 
-    let bass = dataArray[2] * 0.4;
+    let bass = dataArray[2]*0.4;
     let radius = 30 + bass;
 
     ctx.beginPath();
-    ctx.arc(cx, cy, radius, 0, Math.PI*2);
-    ctx.fillStyle = "rgba(255,140,0,0.2)";
+    ctx.arc(cx,cy,radius,0,Math.PI*2);
+    ctx.fillStyle="rgba(255,140,0,0.2)";
     ctx.fill();
 
     for(let i=0;i<bufferLength;i++){
-      let val = dataArray[i];
-      let angle = (i/bufferLength)*Math.PI*2;
-      let height = val * 0.4;
+      let val=dataArray[i];
+      let angle=(i/bufferLength)*Math.PI*2;
+      let h=val*0.4;
 
-      let x1 = cx + Math.cos(angle)*radius;
-      let y1 = cy + Math.sin(angle)*radius;
-
-      let x2 = cx + Math.cos(angle)*(radius + height);
-      let y2 = cy + Math.sin(angle)*(radius + height);
+      let x1=cx+Math.cos(angle)*radius;
+      let y1=cy+Math.sin(angle)*radius;
+      let x2=cx+Math.cos(angle)*(radius+h);
+      let y2=cy+Math.sin(angle)*(radius+h);
 
       ctx.beginPath();
       ctx.moveTo(x1,y1);
