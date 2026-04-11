@@ -18,8 +18,8 @@ body{
   display:flex;
   flex-direction:column;
   align-items:center;
-  justify-content:center;
-  height:100vh;
+  justify-content:flex-start;
+  min-height:100vh;
   padding:20px;
 }
 
@@ -27,7 +27,7 @@ body{
   background: rgba(255,255,255,0.05);
   backdrop-filter: blur(15px);
   border-radius:20px;
-  padding:20px;
+  padding:15px;
   width:100%;
   max-width:320px;
 }
@@ -35,12 +35,12 @@ body{
 button{
   width:100%;
   margin-top:10px;
-  padding:15px;
+  padding:12px;
   border:none;
   border-radius:10px;
   background:orange;
   color:white;
-  font-size:18px;
+  font-size:16px;
 }
 
 input[type=range]{
@@ -48,17 +48,39 @@ input[type=range]{
   margin-top:10px;
 }
 
+/* 🔥 SMALLER VISUALIZER */
 canvas{
   display:block;
   margin:10px auto;
-  width:200px;
-  height:200px;
+  width:150px;
+  height:150px;
 }
 
+/* ARTWORK */
 #artwork{
-  width:140px;
+  width:120px;
   border-radius:12px;
   margin:10px auto;
+}
+
+/* 🎵 SONG HISTORY */
+#history{
+  margin-top:15px;
+  max-width:320px;
+  width:100%;
+  text-align:left;
+  font-size:14px;
+}
+
+.history-item{
+  padding:5px;
+  border-bottom:1px solid rgba(255,255,255,0.1);
+}
+
+/* 📱 INSTALL BUTTON */
+.installBtn{
+  margin-top:10px;
+  background:#222;
 }
 </style>
 
@@ -75,7 +97,7 @@ canvas{
 
 <div class="playerBox">
 
-<canvas id="visualizer" width="200" height="200"></canvas>
+<canvas id="visualizer" width="150" height="150"></canvas>
 
 <button onclick="playRadio()">▶ PLAY</button>
 <button onclick="pauseRadio()">⏸ PAUSE</button>
@@ -83,7 +105,12 @@ canvas{
 <input type="range" min="0" max="1" step="0.01" value="0.7"
        oninput="setVolume(this.value)">
 
+<button class="installBtn" onclick="installApp()">📱 Install App</button>
+
 </div>
+
+<!-- 🎵 HISTORY -->
+<div id="history"></div>
 
 <audio id="player"></audio>
 
@@ -92,17 +119,13 @@ canvas{
 <script>
 
 let audio = document.getElementById("player");
-
-// 🔥 STREAM
 audio.src = "https://pstnet38.shoutcastnet.com:10044/stream";
 audio.setAttribute("playsinline", true);
-audio.setAttribute("webkit-playsinline", true);
 audio.crossOrigin = "anonymous";
 
-let audioCtx;
-let analyser;
-let source;
+let audioCtx, analyser, source;
 let currentSong = "";
+let historyList = [];
 
 // ▶ PLAY
 function playRadio(){
@@ -115,34 +138,25 @@ function playRadio(){
     audioCtx.resume();
   }
 
-  audio.muted = false;
+  audio.play();
 
-  audio.play().then(()=>{
+  if(!source){
+    source = audioCtx.createMediaElementSource(audio);
+    analyser = audioCtx.createAnalyser();
+    analyser.fftSize = 512;
 
-    if(!source){
+    source.connect(analyser);
+    analyser.connect(audioCtx.destination);
 
-      source = audioCtx.createMediaElementSource(audio);
-      analyser = audioCtx.createAnalyser();
+    drawVisualizer();
+  }
 
-      analyser.fftSize = 512;
-
-      source.connect(analyser);
-      analyser.connect(audioCtx.destination);
-
-      drawVisualizer();
-    }
-
-    document.getElementById("nowPlaying").innerText = "🎵 Playing";
-
-  }).catch(()=>{
-    alert("Tap PLAY again");
-  });
+  document.getElementById("nowPlaying").innerText = "🎵 Playing";
 }
 
 // ⏸ PAUSE
 function pauseRadio(){
   audio.pause();
-  document.getElementById("nowPlaying").innerText = "⏸ Paused";
 }
 
 // 🔊 VOLUME
@@ -150,7 +164,7 @@ function setVolume(val){
   audio.volume = val;
 }
 
-// 🎵 SONG DETECTION
+// 🎵 SONG DETECTION + HISTORY
 async function getNowPlaying(){
   try{
     let res = await fetch("https://pstnet38.shoutcastnet.com:10044/7.html");
@@ -163,19 +177,30 @@ async function getNowPlaying(){
       currentSong = song;
       document.getElementById("nowPlaying").innerText = "🎵 " + song;
 
-      let parts = song.split(" - ");
-      let artist = parts[0] || "";
-      let title = parts[1] || song;
+      // add to history
+      historyList.unshift(song);
+      if(historyList.length > 10) historyList.pop();
 
-      fetchArtwork(artist, title);
+      updateHistory();
+
+      fetchArtwork(song);
     }
-
   }catch(e){}
 }
 
-async function fetchArtwork(artist, title){
+function updateHistory(){
+  let container = document.getElementById("history");
+  container.innerHTML = "<h4>Recent Songs</h4>";
 
-  let query = encodeURIComponent(artist + " " + title);
+  historyList.forEach(s => {
+    container.innerHTML += `<div class="history-item">${s}</div>`;
+  });
+}
+
+// 🎨 ARTWORK
+async function fetchArtwork(song){
+
+  let query = encodeURIComponent(song);
 
   let res = await fetch(`https://itunes.apple.com/search?term=${query}&limit=1`);
   let data = await res.json();
@@ -186,10 +211,15 @@ async function fetchArtwork(artist, title){
   }
 }
 
-// update song every 10 sec
+// 🔄 UPDATE
 setInterval(getNowPlaying, 10000);
 
-// 🎧 VISUALIZER (NEON MODE)
+// 📱 INSTALL (iPhone helper)
+function installApp(){
+  alert("On iPhone:\nTap Share ➜ Add to Home Screen 📱");
+}
+
+// 🎧 VISUALIZER (SMALL + CLEAN)
 function drawVisualizer(){
 
   const canvas = document.getElementById("visualizer");
@@ -208,10 +238,9 @@ function drawVisualizer(){
     let cx = canvas.width/2;
     let cy = canvas.height/2;
 
-    let bass = dataArray[2] * 0.5;
-    let radius = 40 + bass;
+    let bass = dataArray[2] * 0.4;
+    let radius = 30 + bass;
 
-    // glowing center
     ctx.beginPath();
     ctx.arc(cx, cy, radius, 0, Math.PI*2);
     ctx.fillStyle = "rgba(255,140,0,0.2)";
@@ -221,7 +250,7 @@ function drawVisualizer(){
 
       let val = dataArray[i];
       let angle = (i/bufferLength)*Math.PI*2;
-      let height = val * 0.6;
+      let height = val * 0.4;
 
       let x1 = cx + Math.cos(angle)*radius;
       let y1 = cy + Math.sin(angle)*radius;
@@ -229,18 +258,13 @@ function drawVisualizer(){
       let x2 = cx + Math.cos(angle)*(radius + height);
       let y2 = cy + Math.sin(angle)*(radius + height);
 
-      let hue = (Date.now()/20) % 360;
-
       ctx.beginPath();
       ctx.moveTo(x1,y1);
       ctx.lineTo(x2,y2);
-      ctx.strokeStyle = `hsl(${hue},100%,50%)`;
-      ctx.shadowBlur = 15;
-      ctx.shadowColor = `hsl(${hue},100%,50%)`;
+      ctx.strokeStyle="orange";
+      ctx.lineWidth = 1.5;
       ctx.stroke();
     }
-
-    ctx.shadowBlur = 0;
   }
 
   draw();
