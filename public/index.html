@@ -32,8 +32,6 @@ body{
   max-width:360px;
 }
 
-h1{font-size:22px;}
-
 button{
   width:100%;
   margin-top:10px;
@@ -67,33 +65,13 @@ canvas{
 
 <div class="playerBox">
 
+<canvas id="visualizer" width="260" height="260"></canvas>
 
+<button onclick="playRadio()">▶ PLAY</button>
+<button onclick="pauseRadio()">⏸ PAUSE</button>
 
-
-      let val = dataArray[i];
-      let height = val * 0.8;
-      let angle = (i/bufferLength)*Math.PI*2;
-
-      let x1 = cx + Math.cos(angle)*(baseRadius + 10);
-      let y1 = cy + Math.sin(angle)*(baseRadius + 10);
-
-      let x2 = cx + Math.cos(angle)*(baseRadius + 10 + height);
-      let y2 = cy + Math.sin(angle)*(baseRadius + 10 + height);
-
-      ctx.beginPath();
-      ctx.moveTo(x1,y1);
-      ctx.lineTo(x2,y2);
-
-      ctx.strokeStyle = "orange";
-      ctx.lineWidth = 2;
-      ctx.stroke();
-    }
-
-    ctx.shadowBlur = 0;
-  }
-
-  draw();
-}
+<input type="range" min="0" max="1" step="0.01" value="0.7"
+       oninput="setVolume(this.value)">
 
 </div>
 
@@ -105,8 +83,6 @@ canvas{
 
 let audio = document.getElementById("player");
 audio.src = "https://pstnet38.shoutcastnet.com:10044/stream";
-
-// 🔥 IMPORTANT FIX FOR iPHONE VOLUME
 audio.volume = 0.7;
 
 let audioCtx;
@@ -131,10 +107,10 @@ function playRadio(){
     source = audioCtx.createMediaElementSource(audio);
     analyser = audioCtx.createAnalyser();
 
+    analyser.fftSize = 512;
+
     source.connect(analyser);
     analyser.connect(audioCtx.destination);
-
-    analyser.fftSize = 512;
 
     drawVisualizer();
   }
@@ -148,12 +124,12 @@ function pauseRadio(){
   document.getElementById("nowPlaying").innerText = "⏸ Paused";
 }
 
-// 🔊 VOLUME FIX (REAL FIX)
+// 🔊 VOLUME
 function setVolume(val){
-  audio.volume = val;   // ← THIS is the correct iPhone fix
+  audio.volume = val;
 }
 
-// 🎧 REAL VISUALIZER (FIXED)
+// 🎧 VISUALIZER (CLEAN + WORKING)
 function drawVisualizer(){
 
   const canvas = document.getElementById("visualizer");
@@ -172,97 +148,32 @@ function drawVisualizer(){
     let cx = canvas.width/2;
     let cy = canvas.height/2;
 
-    // 🔥 BASS PULSE (center breathing)
-    let bass = dataArray[1] * 0.8;
-    let baseRadius = 50 + bass;
+    let bass = dataArray[2] * 0.6;
+    let radius = 50 + bass;
 
-    // 🌑 INNER GLOW CIRCLE
+    // center pulse
     ctx.beginPath();
-    ctx.arc(cx, cy, baseRadius, 0, Math.PI*2);
-    ctx.fillStyle = "rgba(255,140,0,0.15)";
+    ctx.arc(cx, cy, radius, 0, Math.PI*2);
+    ctx.fillStyle = "rgba(255,140,0,0.2)";
     ctx.fill();
 
-    // 🔥 OUTER RING
-    ctx.beginPath();
-    ctx.arc(cx, cy, baseRadius + 10, 0, Math.PI*2);
-    ctx.strokeStyle = "orange";
-    ctx.lineWidth = 4;
-    ctx.shadowBlur = 20;
-    ctx.shadowColor = "orange";
-    ctx.stroke();
-
-    // 🎧 BARS AROUND CIRCLE
-    for(let i=0;i<bufferLength;i++){
-
-      let val = dataArray[i];
-
-      // smooth movement
-      let height = val * 0.8;
-
-      let angle = (i/bufferLength)*Math.PI*2;
-
-      let x1 = cx + Math.cos(angle)*(baseRadius + 10);
-      let y1 = cy + Math.sin(angle)*(baseRadius + 10);
-
-      let x2 = cx + Math.cos(angle)*(baseRadius + 10 + height);
-      let y2 = cy + Math.sin(angle)*(baseRadius + 10 + height);
-
-      ctx.beginPath();
-      ctx.moveTo(x1,y1);
-      ctx.lineTo(x2,y2);
-
-      // 🌈 gradient glow
-      let gradient = ctx.createLinearGradient(x1,y1,x2,y2);
-      gradient.addColorStop(0,"orange");
-      gradient.addColorStop(1,"red");
-
-      ctx.strokeStyle = gradient;
-      ctx.lineWidth = 2;
-      ctx.shadowBlur = 15;
-      ctx.shadowColor = "orange";
-
-      ctx.stroke();
-    }
-
-    // reset shadow
-    ctx.shadowBlur = 0;
-  }
-
-  draw();
-}
-
-  const canvas = document.getElementById("visualizer");
-  const ctx = canvas.getContext("2d");
-
-  const bufferLength = analyser.frequencyBinCount;
-  const dataArray = new Uint8Array(bufferLength);
-
-  function draw(){
-    requestAnimationFrame(draw);
-
-    analyser.getByteFrequencyData(dataArray);
-
-    ctx.clearRect(0,0,canvas.width,canvas.height);
-
-    let cx = canvas.width/2;
-    let cy = canvas.height/2;
-
+    // circle bars
     for(let i=0;i<bufferLength;i++){
 
       let val = dataArray[i];
       let angle = (i/bufferLength)*Math.PI*2;
-      let radius = 60;
-      let height = val * 0.5;
+      let height = val * 0.7;
 
       let x1 = cx + Math.cos(angle)*radius;
       let y1 = cy + Math.sin(angle)*radius;
+
       let x2 = cx + Math.cos(angle)*(radius + height);
       let y2 = cy + Math.sin(angle)*(radius + height);
 
       ctx.beginPath();
       ctx.moveTo(x1,y1);
       ctx.lineTo(x2,y2);
-      ctx.strokeStyle = "orange";
+      ctx.strokeStyle="orange";
       ctx.lineWidth = 2;
       ctx.stroke();
     }
