@@ -2,7 +2,7 @@
 <html>
 <head>
 
-<title>KABOOM RADIO</title>
+<title>KABOOM RADIO NETWORK</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
@@ -15,11 +15,6 @@ body{
 }
 
 .container{
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  justify-content:flex-start;
-  min-height:100vh;
   padding:20px;
 }
 
@@ -28,59 +23,33 @@ body{
   backdrop-filter: blur(15px);
   border-radius:20px;
   padding:15px;
-  width:100%;
   max-width:320px;
+  margin:auto;
 }
 
-button{
+select, button{
   width:100%;
   margin-top:10px;
   padding:12px;
   border:none;
   border-radius:10px;
+}
+
+button{
   background:orange;
   color:white;
-  font-size:16px;
 }
 
-input[type=range]{
-  width:100%;
-  margin-top:10px;
-}
-
-/* 🔥 SMALLER VISUALIZER */
 canvas{
-  display:block;
-  margin:10px auto;
   width:150px;
   height:150px;
-}
-
-/* ARTWORK */
-#artwork{
-  width:120px;
-  border-radius:12px;
   margin:10px auto;
+  display:block;
 }
 
-/* 🎵 SONG HISTORY */
-#history{
+.stationTitle{
   margin-top:15px;
-  max-width:320px;
-  width:100%;
-  text-align:left;
-  font-size:14px;
-}
-
-.history-item{
-  padding:5px;
-  border-bottom:1px solid rgba(255,255,255,0.1);
-}
-
-/* 📱 INSTALL BUTTON */
-.installBtn{
-  margin-top:10px;
-  background:#222;
+  font-size:18px;
 }
 </style>
 
@@ -90,27 +59,33 @@ canvas{
 
 <div class="container">
 
-<h2>🔥 KABOOM RADIO 🔥</h2>
-<p id="nowPlaying">Tap PLAY to start</p>
-
-<img id="artwork" src="https://via.placeholder.com/300">
+<h2>🔥 KABOOM RADIO NETWORK 🔥</h2>
 
 <div class="playerBox">
+
+<div class="stationTitle" id="stationName">Main Tejano</div>
+
+<select onchange="changeStation(this.value)">
+  <option value="main">Main Tejano</option>
+  <option value="latin">Latin Mix</option>
+  <option value="party">Party Hits</option>
+</select>
 
 <canvas id="visualizer" width="150" height="150"></canvas>
 
 <button onclick="playRadio()">▶ PLAY</button>
 <button onclick="pauseRadio()">⏸ PAUSE</button>
 
-<input type="range" min="0" max="1" step="0.01" value="0.7"
-       oninput="setVolume(this.value)">
-
-<button class="installBtn" onclick="installApp()">📱 Install App</button>
-
 </div>
 
-<!-- 🎵 HISTORY -->
-<div id="history"></div>
+<h3>🎵 On Demand</h3>
+
+<select onchange="playOnDemand(this.value)">
+  <option value="">Select Song</option>
+  <option value="audio/song1.mp3">Tejano Track 1</option>
+  <option value="audio/song2.mp3">Latin Track 1</option>
+  <option value="audio/song3.mp3">Party Track 1</option>
+</select>
 
 <audio id="player"></audio>
 
@@ -119,13 +94,23 @@ canvas{
 <script>
 
 let audio = document.getElementById("player");
-audio.src = "https://pstnet38.shoutcastnet.com:10044/stream";
-audio.setAttribute("playsinline", true);
-audio.crossOrigin = "anonymous";
+
+let stations = {
+  main: "https://pstnet38.shoutcastnet.com:10044/stream",
+  latin: "https://stream.zeno.fm/f3wvbbqmdg8uv",
+  party: "https://stream.zeno.fm/8u1qf1h7r8quv"
+};
+
+let stationNames = {
+  main: "Main Tejano",
+  latin: "Latin Mix",
+  party: "Party Hits"
+};
+
+let currentStation = "main";
+audio.src = stations[currentStation];
 
 let audioCtx, analyser, source;
-let currentSong = "";
-let historyList = [];
 
 // ▶ PLAY
 function playRadio(){
@@ -150,8 +135,6 @@ function playRadio(){
 
     drawVisualizer();
   }
-
-  document.getElementById("nowPlaying").innerText = "🎵 Playing";
 }
 
 // ⏸ PAUSE
@@ -159,67 +142,23 @@ function pauseRadio(){
   audio.pause();
 }
 
-// 🔊 VOLUME
-function setVolume(val){
-  audio.volume = val;
+// 🔁 CHANGE STATION
+function changeStation(val){
+  currentStation = val;
+  audio.src = stations[val];
+  document.getElementById("stationName").innerText = stationNames[val];
+  audio.play();
 }
 
-// 🎵 SONG DETECTION + HISTORY
-async function getNowPlaying(){
-  try{
-    let res = await fetch("https://pstnet38.shoutcastnet.com:10044/7.html");
-    let text = await res.text();
-
-    let song = text.split(",")[6];
-
-    if(song && song !== currentSong){
-
-      currentSong = song;
-      document.getElementById("nowPlaying").innerText = "🎵 " + song;
-
-      // add to history
-      historyList.unshift(song);
-      if(historyList.length > 10) historyList.pop();
-
-      updateHistory();
-
-      fetchArtwork(song);
-    }
-  }catch(e){}
-}
-
-function updateHistory(){
-  let container = document.getElementById("history");
-  container.innerHTML = "<h4>Recent Songs</h4>";
-
-  historyList.forEach(s => {
-    container.innerHTML += `<div class="history-item">${s}</div>`;
-  });
-}
-
-// 🎨 ARTWORK
-async function fetchArtwork(song){
-
-  let query = encodeURIComponent(song);
-
-  let res = await fetch(`https://itunes.apple.com/search?term=${query}&limit=1`);
-  let data = await res.json();
-
-  if(data.results.length > 0){
-    document.getElementById("artwork").src =
-      data.results[0].artworkUrl100.replace("100x100","500x500");
+// 🎵 ON DEMAND
+function playOnDemand(file){
+  if(file){
+    audio.src = file;
+    audio.play();
   }
 }
 
-// 🔄 UPDATE
-setInterval(getNowPlaying, 10000);
-
-// 📱 INSTALL (iPhone helper)
-function installApp(){
-  alert("On iPhone:\nTap Share ➜ Add to Home Screen 📱");
-}
-
-// 🎧 VISUALIZER (SMALL + CLEAN)
+// 🎧 VISUALIZER
 function drawVisualizer(){
 
   const canvas = document.getElementById("visualizer");
@@ -247,7 +186,6 @@ function drawVisualizer(){
     ctx.fill();
 
     for(let i=0;i<bufferLength;i++){
-
       let val = dataArray[i];
       let angle = (i/bufferLength)*Math.PI*2;
       let height = val * 0.4;
@@ -262,7 +200,6 @@ function drawVisualizer(){
       ctx.moveTo(x1,y1);
       ctx.lineTo(x2,y2);
       ctx.strokeStyle="orange";
-      ctx.lineWidth = 1.5;
       ctx.stroke();
     }
   }
