@@ -67,39 +67,7 @@ canvas{
 
 <div class="playerBox">
 
-function drawVisualizer(){
 
-  const canvas = document.getElementById("visualizer");
-  const ctx = canvas.getContext("2d");
-
-  const bufferLength = analyser.frequencyBinCount;
-  const dataArray = new Uint8Array(bufferLength);
-
-  function draw(){
-    requestAnimationFrame(draw);
-
-    analyser.getByteFrequencyData(dataArray);
-
-    ctx.clearRect(0,0,canvas.width,canvas.height);
-
-    let cx = canvas.width/2;
-    let cy = canvas.height/2;
-
-    let bass = dataArray[1] * 0.8;
-    let baseRadius = 50 + bass;
-
-    ctx.beginPath();
-    ctx.arc(cx, cy, baseRadius, 0, Math.PI*2);
-    ctx.fillStyle = "rgba(255,140,0,0.15)";
-    ctx.fill();
-
-    ctx.beginPath();
-    ctx.arc(cx, cy, baseRadius + 10, 0, Math.PI*2);
-    ctx.strokeStyle = "orange";
-    ctx.lineWidth = 4;
-    ctx.shadowBlur = 20;
-    ctx.shadowColor = "orange";
-    ctx.stroke();
 
     for(let i=0;i<bufferLength;i++){
 
