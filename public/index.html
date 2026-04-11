@@ -14,24 +14,27 @@ body{
   background: radial-gradient(circle at center, #111 0%, #000 100%);
 }
 
+/* CENTER APP */
 .container{
   display:flex;
   flex-direction:column;
   align-items:center;
   justify-content:center;
-  min-height:100vh;
+  height:100vh;
   padding:20px;
 }
 
+/* PLAYER CARD */
 .playerBox{
   background: rgba(255,255,255,0.05);
   backdrop-filter: blur(15px);
   border-radius:20px;
   padding:20px;
   width:100%;
-  max-width:360px;
+  max-width:320px;
 }
 
+/* BUTTON */
 button{
   width:100%;
   margin-top:10px;
@@ -43,14 +46,18 @@ button{
   font-size:18px;
 }
 
+/* SLIDER */
 input[type=range]{
   width:100%;
   margin-top:10px;
 }
 
+/* VISUALIZER */
 canvas{
   display:block;
   margin:10px auto;
+  width:200px;
+  height:200px;
 }
 </style>
 
@@ -60,12 +67,12 @@ canvas{
 
 <div class="container">
 
-<h1>🔥 KABOOM RADIO 🔥</h1>
-<p id="nowPlaying">🎵 Ready</p>
+<h2>🔥 KABOOM RADIO 🔥</h2>
+<p id="nowPlaying">Tap PLAY to start</p>
 
 <div class="playerBox">
 
-<canvas id="visualizer" width="260" height="260"></canvas>
+<canvas id="visualizer" width="200" height="200"></canvas>
 
 <button onclick="playRadio()">▶ PLAY</button>
 <button onclick="pauseRadio()">⏸ PAUSE</button>
@@ -75,21 +82,25 @@ canvas{
 
 </div>
 
-<audio id="player" crossorigin="anonymous"></audio>
+<audio id="player"></audio>
 
 </div>
 
 <script>
 
 let audio = document.getElementById("player");
+
+// 🔥 STREAM
 audio.src = "https://pstnet38.shoutcastnet.com:10044/stream";
-audio.volume = 0.7;
+audio.setAttribute("playsinline", true);
+audio.setAttribute("webkit-playsinline", true);
+audio.crossOrigin = "anonymous";
 
 let audioCtx;
 let analyser;
 let source;
 
-// ▶ PLAY
+// ▶ PLAY (iPHONE SAFE)
 function playRadio(){
 
   if(!audioCtx){
@@ -100,22 +111,28 @@ function playRadio(){
     audioCtx.resume();
   }
 
-  audio.play();
+  audio.muted = false;
 
-  if(!source){
+  audio.play().then(()=>{
 
-    source = audioCtx.createMediaElementSource(audio);
-    analyser = audioCtx.createAnalyser();
+    if(!source){
 
-    analyser.fftSize = 512;
+      source = audioCtx.createMediaElementSource(audio);
+      analyser = audioCtx.createAnalyser();
 
-    source.connect(analyser);
-    analyser.connect(audioCtx.destination);
+      analyser.fftSize = 512;
 
-    drawVisualizer();
-  }
+      source.connect(analyser);
+      analyser.connect(audioCtx.destination);
 
-  document.getElementById("nowPlaying").innerText = "🎵 Playing...";
+      drawVisualizer();
+    }
+
+    document.getElementById("nowPlaying").innerText = "🎵 Playing";
+
+  }).catch(()=>{
+    alert("Tap PLAY again");
+  });
 }
 
 // ⏸ PAUSE
@@ -129,7 +146,7 @@ function setVolume(val){
   audio.volume = val;
 }
 
-// 🎧 VISUALIZER (CLEAN + WORKING)
+// 🎧 VISUALIZER (RESPONSIVE)
 function drawVisualizer(){
 
   const canvas = document.getElementById("visualizer");
@@ -148,8 +165,8 @@ function drawVisualizer(){
     let cx = canvas.width/2;
     let cy = canvas.height/2;
 
-    let bass = dataArray[2] * 0.6;
-    let radius = 50 + bass;
+    let bass = dataArray[2] * 0.5;
+    let radius = 40 + bass;
 
     // center pulse
     ctx.beginPath();
@@ -157,12 +174,12 @@ function drawVisualizer(){
     ctx.fillStyle = "rgba(255,140,0,0.2)";
     ctx.fill();
 
-    // circle bars
+    // bars
     for(let i=0;i<bufferLength;i++){
 
       let val = dataArray[i];
       let angle = (i/bufferLength)*Math.PI*2;
-      let height = val * 0.7;
+      let height = val * 0.6;
 
       let x1 = cx + Math.cos(angle)*radius;
       let y1 = cy + Math.sin(angle)*radius;
