@@ -14,7 +14,6 @@ body{
   background: radial-gradient(circle at center, #111 0%, #000 100%);
 }
 
-/* CENTER APP */
 .container{
   display:flex;
   flex-direction:column;
@@ -24,7 +23,6 @@ body{
   padding:20px;
 }
 
-/* PLAYER CARD */
 .playerBox{
   background: rgba(255,255,255,0.05);
   backdrop-filter: blur(15px);
@@ -34,7 +32,6 @@ body{
   max-width:320px;
 }
 
-/* BUTTON */
 button{
   width:100%;
   margin-top:10px;
@@ -46,18 +43,22 @@ button{
   font-size:18px;
 }
 
-/* SLIDER */
 input[type=range]{
   width:100%;
   margin-top:10px;
 }
 
-/* VISUALIZER */
 canvas{
   display:block;
   margin:10px auto;
   width:200px;
   height:200px;
+}
+
+#artwork{
+  width:140px;
+  border-radius:12px;
+  margin:10px auto;
 }
 </style>
 
@@ -69,6 +70,8 @@ canvas{
 
 <h2>🔥 KABOOM RADIO 🔥</h2>
 <p id="nowPlaying">Tap PLAY to start</p>
+
+<img id="artwork" src="https://via.placeholder.com/300">
 
 <div class="playerBox">
 
@@ -99,8 +102,9 @@ audio.crossOrigin = "anonymous";
 let audioCtx;
 let analyser;
 let source;
+let currentSong = "";
 
-// ▶ PLAY (iPHONE SAFE)
+// ▶ PLAY
 function playRadio(){
 
   if(!audioCtx){
@@ -146,7 +150,46 @@ function setVolume(val){
   audio.volume = val;
 }
 
-// 🎧 VISUALIZER (RESPONSIVE)
+// 🎵 SONG DETECTION
+async function getNowPlaying(){
+  try{
+    let res = await fetch("https://pstnet38.shoutcastnet.com:10044/7.html");
+    let text = await res.text();
+
+    let song = text.split(",")[6];
+
+    if(song && song !== currentSong){
+
+      currentSong = song;
+      document.getElementById("nowPlaying").innerText = "🎵 " + song;
+
+      let parts = song.split(" - ");
+      let artist = parts[0] || "";
+      let title = parts[1] || song;
+
+      fetchArtwork(artist, title);
+    }
+
+  }catch(e){}
+}
+
+async function fetchArtwork(artist, title){
+
+  let query = encodeURIComponent(artist + " " + title);
+
+  let res = await fetch(`https://itunes.apple.com/search?term=${query}&limit=1`);
+  let data = await res.json();
+
+  if(data.results.length > 0){
+    document.getElementById("artwork").src =
+      data.results[0].artworkUrl100.replace("100x100","500x500");
+  }
+}
+
+// update song every 10 sec
+setInterval(getNowPlaying, 10000);
+
+// 🎧 VISUALIZER (NEON MODE)
 function drawVisualizer(){
 
   const canvas = document.getElementById("visualizer");
@@ -168,13 +211,12 @@ function drawVisualizer(){
     let bass = dataArray[2] * 0.5;
     let radius = 40 + bass;
 
-    // center pulse
+    // glowing center
     ctx.beginPath();
     ctx.arc(cx, cy, radius, 0, Math.PI*2);
     ctx.fillStyle = "rgba(255,140,0,0.2)";
     ctx.fill();
 
-    // bars
     for(let i=0;i<bufferLength;i++){
 
       let val = dataArray[i];
@@ -187,13 +229,18 @@ function drawVisualizer(){
       let x2 = cx + Math.cos(angle)*(radius + height);
       let y2 = cy + Math.sin(angle)*(radius + height);
 
+      let hue = (Date.now()/20) % 360;
+
       ctx.beginPath();
       ctx.moveTo(x1,y1);
       ctx.lineTo(x2,y2);
-      ctx.strokeStyle="orange";
-      ctx.lineWidth = 2;
+      ctx.strokeStyle = `hsl(${hue},100%,50%)`;
+      ctx.shadowBlur = 15;
+      ctx.shadowColor = `hsl(${hue},100%,50%)`;
       ctx.stroke();
     }
+
+    ctx.shadowBlur = 0;
   }
 
   draw();
