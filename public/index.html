@@ -6,6 +6,36 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
+  let playlist = [
+  "audio/song1.mp3",
+  "audio/song2.mp3",
+  "audio/song3.mp3"
+];
+
+let currentTrack = 0;
+
+// ▶ START PLAYLIST
+function startPlaylist(){
+  audio.src = playlist[currentTrack];
+  audio.play();
+  updateTrackName();
+}
+
+// 🔁 NEXT SONG
+audio.addEventListener("ended", () => {
+  currentTrack++;
+  if(currentTrack >= playlist.length){
+    currentTrack = 0;
+  }
+  startPlaylist();
+});
+
+// 🎵 SHOW TRACK NAME
+function updateTrackName(){
+  let name = playlist[currentTrack].split("/").pop();
+  document.getElementById("nowPlaying").innerText = "🎵 " + name;
+  <button onclick="startPlaylist()">🎵 AUTO PLAYLIST</button>
+}
 body{
   margin:0;
   font-family:Arial;
